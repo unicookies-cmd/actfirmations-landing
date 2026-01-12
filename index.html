@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>UniCookies Act-firmations</title>
-  <meta name="description" content="A sweet message for you." />
+  <title>UniCookies — A Sweet Message</title>
 
   <style>
     :root{
@@ -14,125 +13,128 @@
       --line:#eaeaea;
       --card:#fff;
       --shadow: 0 10px 30px rgba(0,0,0,.06);
-      --radius: 20px;
-      --pad: 22px;
+      --radius: 22px;
+      --pad: 26px;
       --max: 760px;
     }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
       background:var(--bg);
       color:var(--text);
       font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      line-height:1.35;
     }
-    .wrap{max-width:var(--max); margin:0 auto; padding:48px 18px;}
+
+    .wrap{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:60px 18px;
+    }
+
     .card{
       background:var(--card);
       border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      padding: 28px var(--pad);
+      padding: var(--pad);
       text-align:center;
     }
 
-    /* Bakso Sapi font (self-hosted) */
+    /* Font */
     @font-face{
-      font-family: "Bakso Sapi";
-      src: url("./assets/BaksoSapi.woff2") format("woff2");
-      font-weight: 400;
-      font-style: normal;
-      font-display: swap;
+      font-family:"Bakso Sapi";
+      src:url("./assets/BaksoSapi.woff2") format("woff2");
+      font-display:swap;
     }
 
-    /* Logo — larger */
     .logo{
-      width: 120px;
-      height: auto;
+      width:120px;
+      margin:0 auto 14px;
       display:block;
-      margin: 0 auto 10px;
     }
 
-    /* Small header text */
     .kicker{
       font-size:12px;
       letter-spacing:.18em;
       text-transform:uppercase;
       color:#777;
-      margin: 0 0 12px;
+      margin-bottom:14px;
     }
 
-    /* MAIN MESSAGE HERO */
     .affirmation{
-      font-family: "Bakso Sapi", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      font-size: clamp(32px, 4vw, 42px);
-      line-height: 1.15;
-      margin: 0 0 18px;
-      padding: 0 6px;
+      font-family:"Bakso Sapi", system-ui, sans-serif;
+      font-size:clamp(34px, 4vw, 44px);
+      line-height:1.15;
+      margin:0 auto 26px;
+      max-width:680px;
     }
 
-    /* Social Icons section (ABOVE divider) */
-    .social{
-      margin-top: 10px;
-    }
-    .iconbar{
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-    .iconbtn{
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      border: 1px solid #e1e1e1;
-      display:grid;
-      place-items:center;
-      text-decoration:none;
-      color: inherit;
-      background:#fff;
-    }
-    .iconbtn:hover{border-color:#cfcfcf}
-    .iconbtn svg{width:22px;height:22px;display:block}
-
-    /* TIP acts as the divider row */
-    .tipbar{
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.3;
-    }
-    .tipbar strong{color: var(--text); font-weight: 800;}
-
-    /* Buttons BELOW divider */
+    /* Actions */
     .row{
       display:flex;
-      gap:10px;
       justify-content:center;
+      gap:12px;
       flex-wrap:wrap;
-      margin-top: 14px;
-      margin-bottom: 8px;
+      margin-bottom:22px;
     }
+
     button{
       appearance:none;
       border:1px solid #e1e1e1;
       background:#fff;
-      color:#111;
-      padding: 12px 14px;
-      border-radius: 12px;
+      padding:12px 16px;
+      border-radius:12px;
       font-weight:700;
       cursor:pointer;
     }
+
     button:hover{border-color:#cfcfcf}
 
+    /* Tip divider */
+    .tip{
+      font-size:13px;
+      color:var(--muted);
+      padding-top:16px;
+      margin-bottom:18px;
+      border-top:1px solid var(--line);
+    }
+
+    .tip strong{color:var(--text)}
+
+    /* Social icons bottom */
+    .iconbar{
+      display:flex;
+      justify-content:center;
+      gap:16px;
+      padding-top:6px;
+    }
+
+    .iconbtn{
+      width:46px;
+      height:46px;
+      border-radius:14px;
+      border:1px solid #e1e1e1;
+      display:grid;
+      place-items:center;
+      color:inherit;
+      text-decoration:none;
+      background:#fff;
+    }
+
+    .iconbtn svg{
+      width:22px;
+      height:22px;
+    }
+
+    .iconbtn:hover{border-color:#cfcfcf}
+
     .toast{
+      margin-top:14px;
       font-size:12px;
       color:#0a7;
-      margin-top: 10px;
       display:none;
-      text-align:center;
     }
   </style>
 </head>
@@ -141,59 +143,50 @@
   <main class="wrap">
     <section class="card">
 
-      <!-- Logo -->
-      <img class="logo" src="./assets/logo.png" alt="UniCookies logo" />
+      <img src="./assets/logo.png" class="logo" alt="UniCookies logo" />
 
-      <!-- Small header -->
-      <p class="kicker">A SWEET MESSAGE FOR YOU</p>
+      <div class="kicker">A SWEET MESSAGE FOR YOU</div>
 
-      <!-- MAIN MESSAGE -->
-      <p id="affirmation" class="affirmation">Loading…</p>
+      <div id="affirmation" class="affirmation">Loading…</div>
 
-      <!-- Social Icons (ABOVE divider) -->
-      <div class="social">
-        <nav class="iconbar" aria-label="UniCookies social links">
-          <!-- Instagram -->
-          <a class="iconbtn" href="https://instagram.com/eatunicookies" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-              <circle cx="12" cy="12" r="4"></circle>
-              <circle cx="17.5" cy="6.5" r="1"></circle>
-            </svg>
-          </a>
-
-          <!-- TikTok -->
-          <a class="iconbtn" href="https://tiktok.com/@eatunicookies" target="_blank" rel="noopener" aria-label="TikTok">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 3v10.5a4.5 4.5 0 1 1-4-4.47"></path>
-              <path d="M14 3c1.2 3.4 3.6 5 7 5"></path>
-            </svg>
-          </a>
-
-          <!-- YouTube -->
-          <a class="iconbtn" href="https://youtube.com/@eatunicookies" target="_blank" rel="noopener" aria-label="YouTube">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 12s0-4-1-5-5-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 5 1 9 1 8 0 9-1 1-5 1-5z"></path>
-              <path d="M10 15l5-3-5-3v6z"></path>
-            </svg>
-          </a>
-        </nav>
+      <!-- ACTIONS -->
+      <div class="row">
+        <button id="copyBtn">Copy</button>
+        <button id="shareBtn">Share</button>
+        <button id="storyBtn">Make Story Card</button>
       </div>
 
-      <!-- TIP divider row -->
-      <div class="tipbar">
+      <!-- TIP DIVIDER -->
+      <div class="tip">
         Tip: Share your message and tag <strong>@eatunicookies</strong> to enter our monthly drawing.
       </div>
 
-      <!-- Buttons (BELOW divider) -->
-      <div class="row">
-  <button id="copyBtn" type="button">Copy</button>
-  <button id="shareBtn" type="button">Share</button>
-  <button id="storyBtn" type="button">Make Story Card</button>
-</div>
+      <!-- SOCIAL ICONS -->
+      <nav class="iconbar">
+        <a class="iconbtn" href="https://instagram.com/eatunicookies" target="_blank" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="1"/>
+          </svg>
+        </a>
 
+        <a class="iconbtn" href="https://tiktok.com/@eatunicookies" target="_blank" aria-label="TikTok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 3v10.5a4.5 4.5 0 1 1-4-4.47"/>
+            <path d="M14 3c1.2 3.4 3.6 5 7 5"/>
+          </svg>
+        </a>
 
-      <div class="toast" id="toast">Copied!</div>
+        <a class="iconbtn" href="https://youtube.com/@eatunicookies" target="_blank" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12s0-4-1-5-5-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 5 1 9 1 8 0 9-1 1-5 1-5z"/>
+            <path d="M10 15l5-3-5-3v6z"/>
+          </svg>
+        </a>
+      </nav>
+
+      <div class="toast" id="toast">Saved!</div>
 
     </section>
   </main>
