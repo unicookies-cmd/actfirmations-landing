@@ -91,7 +91,7 @@ window.AFFIRMATIONS = [
   "I release the need to control the outcome.",
   "I speak to myself with kindness and respect.",
   "I’m aligned with what’s next.",
-  "I don’t chase—I attract."
+  "I don’t chase—I attract.",
   "My focus creates my reality.",
   "I treat myself like someone I love.",
   "I choose to see challenges as opportunities.",
@@ -108,5 +108,5 @@ window.AFFIRMATIONS = [
   "You deserve moments of sweetness.",
   "You are valued beyond productivity.",
   "You are appreciated today — not someday.",
-  "This cookie exists because you matter."
+  "This cookie exists because you matter.",
 ];
