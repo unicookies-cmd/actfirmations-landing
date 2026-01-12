@@ -8,31 +8,57 @@ const newBtn = el("newBtn");
 const copyBtn = el("copyBtn");
 const shareBtn = el("shareBtn");
 
-// Pick your mode:
-// "random" = changes every visit + New one button
-// "daily"  = same affirmation each day
-const MODE = "random"; // change to "daily" if you want true daily behavior
+// Per-day lock key: same device + same day = same message
+function dayKey() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
 
+function storageKeyForToday() {
+  return `unicookies_actfirmation_${dayKey()}`;
+}
+
+// Choose a random item index
 function randomIndex(max) {
   return Math.floor(Math.random() * max);
 }
 
-function dailyIndex(max) {
-  const d = new Date();
-  const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  let hash = 0;
-  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
-  return hash % max;
-}
-
-function pickAffirmation() {
+// Get today’s message (locked per device/day)
+function getTodaysAffirmation() {
   if (!AFFS.length) return "Add affirmations in affirmations.js";
-  const idx = MODE === "daily" ? dailyIndex(AFFS.length) : randomIndex(AFFS.length);
-  return AFFS[idx];
-}
 
-function setAffirmation(text) {
-  affEl.textContent = text;
+  const key = storageKeyForToday();
+  const existing = localStorage.getItem(key);
+  if (existing) return existing;
+
+  const chosen = AFFS[randomIndex(AFFS.length)];
+  localStorage.setItem(key, chosen);
+
+  // Optional cleanup: keep storage from growing forever
+  // Remove older keys (keep last ~14 days)
+  try {
+    const keepDays = 14;
+    const now = new Date();
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith("unicookies_actfirmation_")) continue;
+
+      const datePart = k.replace("unicookies_actfirmation_", "");
+      const dt = new Date(datePart + "T00:00:00");
+      const ageDays = (now - dt) / (1000 * 60 * 60 * 24);
+
+      if (Number.isFinite(ageDays) && ageDays > keepDays) {
+        localStorage.removeItem(k);
+      }
+    }
+  } catch {
+    // ignore cleanup errors
+  }
+
+  return chosen;
 }
 
 function showToast(msg) {
@@ -41,7 +67,20 @@ function showToast(msg) {
   setTimeout(() => (toastEl.style.display = "none"), 1200);
 }
 
-newBtn.addEventListener("click", () => setAffirmation(pickAffirmation()));
+function setAffirmation(text) {
+  affEl.textContent = text;
+}
+
+// "New one" will override today’s locked message *for this device* (still only lasts today)
+function newOne() {
+  if (!AFFS.length) return;
+
+  const chosen = AFFS[randomIndex(AFFS.length)];
+  localStorage.setItem(storageKeyForToday(), chosen);
+  setAffirmation(chosen);
+}
+
+newBtn.addEventListener("click", newOne);
 
 copyBtn.addEventListener("click", async () => {
   try {
@@ -78,4 +117,4 @@ shareBtn.addEventListener("click", async () => {
 });
 
 // Init
-setAffirmation(pickAffirmation());
+setAffirmation(getTodaysAffirmation());
