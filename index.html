@@ -33,33 +33,10 @@
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding: 28px var(--pad);
-    }
-
-    /* Header block */
-    .top{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
       text-align:center;
-      gap:10px;
-      margin-bottom: 18px;
-    }
-    .logo{
-      width: 84px;
-      height: 84px;
-      border-radius: 18px;
-      object-fit: contain;
-      display:block;
-    }
-    .kicker{
-      font-size:12px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color:var(--muted);
-      margin:0;
     }
 
-    /* Bakso Sapi font (you’ll add the file) */
+    /* Bakso Sapi font (self-hosted) */
     @font-face{
       font-family: "Bakso Sapi";
       src: url("./assets/BaksoSapi.woff2") format("woff2");
@@ -67,41 +44,36 @@
       font-style: normal;
       font-display: swap;
     }
-    .title{
-      font-family: "Bakso Sapi", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      font-size: 34px;
-      margin: 0;
-      line-height: 1.05;
+
+    /* Logo — larger */
+    .logo{
+      width: 120px;
+      height: auto;
+      display:block;
+      margin: 0 auto 10px;
     }
+
+    /* Small header text */
+    .kicker{
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#777;
+      margin: 0 0 12px;
+    }
+
+    /* MAIN MESSAGE HERO */
     .affirmation{
-      font-size: 22px;
-      margin: 8px 0 12px;
-    }
-    .note{
-      font-size: 14px;
-      color: var(--muted);
+      font-family: "Bakso Sapi", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: clamp(32px, 4vw, 42px);
+      line-height: 1.15;
       margin: 0 0 18px;
+      padding: 0 6px;
     }
-
-    /* Buttons */
-    .row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:16px;}
-    button{
-      appearance:none;
-      border:1px solid #e1e1e1;
-      background:#fff;
-      color:#111;
-      padding: 12px 14px;
-      border-radius: 12px;
-      font-weight:700;
-      cursor:pointer;
-    }
-    button:hover{border-color:#cfcfcf}
-
-    .toast{font-size:12px;color:#0a7;margin-top:10px;display:none;text-align:center;}
 
     /* Icon bar */
     .iconbar{
-      margin-top: 18px;
+      margin-top: 8px;
       padding-top: 18px;
       border-top: 1px solid var(--line);
       display:flex;
@@ -123,6 +95,41 @@
     .iconbtn:hover{border-color:#cfcfcf}
     .iconbtn svg{width:22px;height:22px;display:block}
 
+    /* Note */
+    .note{
+      font-size: 14px;
+      color: var(--muted);
+      margin: 16px 0 14px;
+    }
+
+    /* Buttons */
+    .row{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-bottom: 8px;
+    }
+    button{
+      appearance:none;
+      border:1px solid #e1e1e1;
+      background:#fff;
+      color:#111;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    button:hover{border-color:#cfcfcf}
+
+    .toast{
+      font-size:12px;
+      color:#0a7;
+      margin-top: 10px;
+      display:none;
+      text-align:center;
+    }
+
     footer{
       margin-top: 18px;
       font-size: 12px;
@@ -135,24 +142,17 @@
 <body>
   <main class="wrap">
     <section class="card">
-      <div class="top">
-        <!-- Put your logo file at: /assets/logo.png -->
-        <img class="logo" src="./assets/logo.png" alt="UniCookies logo" />
-        <p class="kicker">TODAY’S INSPIRATION</p>
-        <h3 class="title">Today’s Act-firmations</h3>
 
-        <p id="affirmation" class="affirmation">Loading…</p>
-        <p class="note" id="modeNote">Return daily for a new cookie-couragement.</p>
+      <!-- Logo -->
+      <img class="logo" src="./assets/logo.png" alt="UniCookies logo" />
 
-        <div class="row">
-          <button id="newBtn" type="button">New one</button>
-          <button id="copyBtn" type="button">Copy</button>
-          <button id="shareBtn" type="button">Share</button>
-        </div>
-        <div class="toast" id="toast">Copied!</div>
-      </div>
+      <!-- Small header -->
+      <p class="kicker">A SWEET MESSAGE FOR YOU</p>
 
-      <!-- Social Icons (bottom) -->
+      <!-- MAIN MESSAGE -->
+      <p id="affirmation" class="affirmation">Loading…</p>
+
+      <!-- Social Icons -->
       <nav class="iconbar" aria-label="UniCookies social links">
         <!-- Instagram -->
         <a class="iconbtn" href="https://instagram.com/eatunicookies" target="_blank" rel="noopener" aria-label="Instagram">
@@ -171,7 +171,7 @@
           </svg>
         </a>
 
-        <!-- YouTube (replaces Shop) -->
+        <!-- YouTube (alt icon style) -->
         <a class="iconbtn" href="https://youtube.com/@eatunicookies" target="_blank" rel="noopener" aria-label="YouTube">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 12s0-4-1-5-5-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 5 1 9 1 8 0 9-1 1-5 1-5z"></path>
@@ -179,6 +179,18 @@
           </svg>
         </a>
       </nav>
+
+      <!-- Note -->
+      <p class="note">Return daily for a new cookie-couragement.</p>
+
+      <!-- Buttons -->
+      <div class="row">
+        <button id="newBtn" type="button">New one</button>
+        <button id="copyBtn" type="button">Copy</button>
+        <button id="shareBtn" type="button">Share</button>
+      </div>
+
+      <div class="toast" id="toast">Copied!</div>
 
       <footer>Tip: Bookmark this page or scan your package for new cookies daily.</footer>
     </section>
