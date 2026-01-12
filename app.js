@@ -4,7 +4,6 @@ const el = (id) => document.getElementById(id);
 const affEl = el("affirmation");
 const toastEl = el("toast");
 
-const newBtn = el("newBtn");
 const copyBtn = el("copyBtn");
 const shareBtn = el("shareBtn");
 
@@ -21,12 +20,10 @@ function storageKeyForToday() {
   return `unicookies_actfirmation_${dayKey()}`;
 }
 
-// Choose a random item index
 function randomIndex(max) {
   return Math.floor(Math.random() * max);
 }
 
-// Get today’s message (locked per device/day)
 function getTodaysAffirmation() {
   if (!AFFS.length) return "Add affirmations in affirmations.js";
 
@@ -36,28 +33,6 @@ function getTodaysAffirmation() {
 
   const chosen = AFFS[randomIndex(AFFS.length)];
   localStorage.setItem(key, chosen);
-
-  // Optional cleanup: keep storage from growing forever
-  // Remove older keys (keep last ~14 days)
-  try {
-    const keepDays = 14;
-    const now = new Date();
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (!k || !k.startsWith("unicookies_actfirmation_")) continue;
-
-      const datePart = k.replace("unicookies_actfirmation_", "");
-      const dt = new Date(datePart + "T00:00:00");
-      const ageDays = (now - dt) / (1000 * 60 * 60 * 24);
-
-      if (Number.isFinite(ageDays) && ageDays > keepDays) {
-        localStorage.removeItem(k);
-      }
-    }
-  } catch {
-    // ignore cleanup errors
-  }
-
   return chosen;
 }
 
@@ -70,17 +45,6 @@ function showToast(msg) {
 function setAffirmation(text) {
   affEl.textContent = text;
 }
-
-// "New one" will override today’s locked message *for this device* (still only lasts today)
-function newOne() {
-  if (!AFFS.length) return;
-
-  const chosen = AFFS[randomIndex(AFFS.length)];
-  localStorage.setItem(storageKeyForToday(), chosen);
-  setAffirmation(chosen);
-}
-
-newBtn.addEventListener("click", newOne);
 
 copyBtn.addEventListener("click", async () => {
   try {
@@ -106,7 +70,6 @@ shareBtn.addEventListener("click", async () => {
       await navigator.share({ title: "UniCookies Act-firmations", text, url });
     } catch {}
   } else {
-    // fallback: copy share text
     try {
       await navigator.clipboard.writeText(`${text}\n\n${url}`);
       showToast("Share text copied!");
