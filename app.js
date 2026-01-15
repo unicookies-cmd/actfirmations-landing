@@ -169,7 +169,7 @@ async function makeStoryCard(cookieName, message) {
   // Load logo
   const logoImg = new Image();
   logoImg.crossOrigin = "anonymous";
-  logoImg.src = "./assets/logo.png";
+  logoImg.src = "/assets/logo.png";
 
   await new Promise((resolve, reject) => {
     logoImg.onload = resolve;
