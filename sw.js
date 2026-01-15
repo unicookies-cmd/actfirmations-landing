@@ -4,10 +4,10 @@
    - Cache-first for css/js/assets (fast + resilient)
 */
 
-const CACHE_NAME = "unicookies-assets-v1";
+const CACHE_NAME = "unicookies-assets-v2";
 
 const ASSETS_TO_CACHE = [
-  "/",               // root
+  "/",
   "/index.html",
   "/styles.css",
   "/config.js",
@@ -16,6 +16,7 @@ const ASSETS_TO_CACHE = [
   "/assets/logo.png",
   "/assets/BaksoSapi.woff2"
 ];
+
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
