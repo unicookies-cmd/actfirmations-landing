@@ -37,7 +37,7 @@ body{
 /* Bakso Sapi font (self-hosted) */
 @font-face{
   font-family:"Bakso Sapi";
-  src:url("/assets/BaksoSapi.woff2") format("woff2");
+  src:url("./assets/BaksoSapi.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -45,14 +45,14 @@ body{
 
 .logo{
   width:120px;
-  margin:0 auto 10px;
+  margin:0 auto 14px;
   display:block;
 }
 
 .cookieline{
   font-size: 13px;
   color: #444;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .kicker{
@@ -67,8 +67,9 @@ body{
   font-family:"Bakso Sapi", system-ui, sans-serif;
   font-size:clamp(34px, 4vw, 44px);
   line-height:1.15;
-  margin:0 auto 16px;
+  margin:0 auto 14px;
   max-width:680px;
+  white-space: pre-wrap; /* allows haiku line breaks */
 }
 
 .collectionline{
@@ -83,7 +84,7 @@ body{
   justify-content:center;
   gap:12px;
   flex-wrap:wrap;
-  margin-bottom:22px;
+  margin-bottom:20px;
 }
 
 button{
