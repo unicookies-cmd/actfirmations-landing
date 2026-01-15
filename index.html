@@ -6,21 +6,24 @@
   <title>UniCookies — A Sweet Message</title>
   <meta name="description" content="A sweet message for you, fresh each day." />
 
-  <link rel="stylesheet" href="/styles.css" />
+  <!-- IMPORTANT: file is style.css (not styles.css) -->
+  <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
   <main class="wrap">
     <section class="card">
 
-      <img class="logo" src="assets/logo.png" alt="UniCookies logo" />
+      <img class="logo" src="./assets/logo.png" alt="UniCookies logo" />
 
-      <div id="cookieLine" class="cookieline">House Blend • Today’s message</div>
+      <!-- Cookie identity line (shown only for cookie param) -->
+      <div id="cookieLine" class="cookieline" style="display:none;"></div>
 
       <div class="kicker">A SWEET MESSAGE FOR YOU</div>
 
       <div id="affirmation" class="affirmation">Loading…</div>
 
+      <!-- Optional “collection” line -->
       <div id="collectionLine" class="collectionline" aria-live="polite"></div>
 
       <!-- ACTIONS -->
@@ -30,7 +33,7 @@
         <button id="storyBtn" type="button">Make Story Card</button>
       </div>
 
-      <!-- TIP DIVIDER -->
+      <!-- TIP DIVIDER (divider between buttons and social icons) -->
       <div class="tip">
         Tip: Share your message and tag <strong>@eatunicookies</strong>.
       </div>
@@ -65,7 +68,7 @@
     </section>
   </main>
 
-  <script src="/cookie-messages.js"></script>
-  <script src="/app.js"></script>
+  <script src="./cookie-messages.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
