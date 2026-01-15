@@ -1,8 +1,8 @@
 /* app.js — UniCookies "A Sweet Message"
-   - Per-cookie, per-device, per-day message lock
-   - Default = House Blend pool (NO label shown)
-   - Cookie identity line shown ONLY when cookie param exists
-   - Local-only collection behavior (7-cookie set)
+   - Per-cookie, per-device, per-day lock
+   - Default = House Blend pool (label hidden)
+   - Cookie identity line shown only when cookie param exists
+   - Local collection: “You scanned X of 7 cookies today”
    - Copy / Share / Story Card (1080×1920)
 */
 
@@ -21,8 +21,7 @@ const META = window.UNI_COOKIE_META || {};
 const HOUSE_BLEND = window.UNI_HOUSE_BLEND || [];
 const COOKIE_POOLS = window.UNI_COOKIE_MESSAGES || {};
 
-/* ---------------- Helpers ---------------- */
-
+// ---------- Helpers ----------
 function dayKey() {
   const d = new Date();
   const yyyy = d.getFullYear();
@@ -61,9 +60,7 @@ function showToast(msg) {
 }
 
 function getPool(cookieId) {
-  if (cookieId && COOKIE_POOLS[cookieId]?.length) {
-    return COOKIE_POOLS[cookieId];
-  }
+  if (cookieId && COOKIE_POOLS[cookieId]?.length) return COOKIE_POOLS[cookieId];
   return HOUSE_BLEND;
 }
 
@@ -80,14 +77,13 @@ function getTodaysMessage(cookieId) {
   return chosen;
 }
 
-/* -------- Collection behavior (local only) -------- */
-
+// ---------- Collection behavior ----------
 function scannedKeyForToday() {
   return `unicookies_scanned_${dayKey()}`;
 }
 
 function markScanned(cookieId) {
-  if (!cookieId) return; // Default scans do not count
+  if (!cookieId) return; // default doesn't count toward 7
   try {
     const key = scannedKeyForToday();
     const raw = localStorage.getItem(key);
@@ -102,20 +98,14 @@ function renderCollectionLine() {
   try {
     const raw = localStorage.getItem(scannedKeyForToday());
     const arr = raw ? JSON.parse(raw) : [];
-    const count = new Set(arr).size;
-
-    if (count > 0) {
-      collectionLineEl.textContent = `You scanned ${count} of 7 cookies today.`;
-    } else {
-      collectionLineEl.textContent = "";
-    }
+    const count = new Set(Array.isArray(arr) ? arr : []).size;
+    collectionLineEl.textContent = count > 0 ? `You scanned ${count} of 7 cookies today.` : "";
   } catch {
     collectionLineEl.textContent = "";
   }
 }
 
-/* ---------------- Actions ---------------- */
-
+// ---------- Actions ----------
 copyBtn.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(affEl.textContent);
@@ -145,9 +135,7 @@ shareBtn.addEventListener("click", async () => {
     } catch {}
   } else {
     try {
-      await navigator.clipboard.writeText(
-        `${text}\n\nTag @eatunicookies 🍪\n${url}`
-      );
+      await navigator.clipboard.writeText(`${text}\n\nTag @eatunicookies 🍪\n${url}`);
       showToast("Share text copied!");
     } catch {
       showToast("Unable to share");
@@ -155,11 +143,9 @@ shareBtn.addEventListener("click", async () => {
   }
 });
 
-/* ---------------- Story Card (1080×1920) ---------------- */
-
+// ---------- Story Card ----------
 async function makeStoryCard(cookieName, message) {
-  const W = 1080;
-  const H = 1920;
+  const W = 1080, H = 1920;
   const bg = "#2aace2";
 
   const canvas = document.createElement("canvas");
@@ -171,23 +157,19 @@ async function makeStoryCard(cookieName, message) {
   ctx.fillRect(0, 0, W, H);
 
   const logo = new Image();
-  logo.src = "/assets/logo.png";
+  logo.src = "./assets/logo.png";
   await new Promise((res, rej) => {
     logo.onload = res;
     logo.onerror = rej;
   });
 
-  try {
-    await document.fonts.load('48px "Bakso Sapi"');
-  } catch {}
+  try { await document.fonts.load('48px "Bakso Sapi"'); } catch {}
 
-  // Logo
   const lw = 260;
   const scale = lw / logo.width;
   const lh = logo.height * scale;
   ctx.drawImage(logo, (W - lw) / 2, 140, lw, lh);
 
-  // Cookie name (only if provided)
   if (cookieName) {
     ctx.fillStyle = "rgba(255,255,255,0.92)";
     ctx.font = "700 38px system-ui";
@@ -195,12 +177,10 @@ async function makeStoryCard(cookieName, message) {
     ctx.fillText(cookieName, W / 2, 140 + lh + 36);
   }
 
-  // Header
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = "700 30px system-ui";
   ctx.fillText("A SWEET MESSAGE FOR YOU", W / 2, 140 + lh + 96);
 
-  // Message
   let fontSize = 92;
   if (message.length > 70) fontSize = 76;
   if (message.length > 100) fontSize = 64;
@@ -208,21 +188,22 @@ async function makeStoryCard(cookieName, message) {
   ctx.fillStyle = "#fff";
   ctx.font = `400 ${fontSize}px "Bakso Sapi", system-ui`;
   ctx.textAlign = "center";
+  ctx.textBaseline = "top";
   ctx.shadowColor = "rgba(0,0,0,0.18)";
   ctx.shadowBlur = 12;
   ctx.shadowOffsetY = 6;
 
   const lines = wrapText(ctx, message, 860);
-  let y = 520 + Math.max(0, (800 - lines.length * fontSize * 1.2) / 2);
+  const lineHeight = fontSize * 1.18;
+  let y = 520;
 
   for (const line of lines) {
     ctx.fillText(line, W / 2, y);
-    y += fontSize * 1.2;
+    y += lineHeight;
   }
 
   ctx.shadowBlur = 0;
 
-  // Footer
   ctx.fillStyle = "rgba(255,255,255,0.95)";
   ctx.font = "700 40px system-ui";
   ctx.fillText("Tag @eatunicookies", W / 2, H - 120);
@@ -237,31 +218,25 @@ async function makeStoryCard(cookieName, message) {
 }
 
 function wrapText(ctx, text, maxWidth) {
-  const words = text.split(/\s+/);
+  const words = String(text).split(/\s+/).filter(Boolean);
   const lines = [];
   let line = "";
 
   for (const word of words) {
     const test = line ? `${line} ${word}` : word;
-    if (ctx.measureText(test).width <= maxWidth) {
-      line = test;
-    } else {
-      lines.push(line);
-      line = word;
-    }
+    if (ctx.measureText(test).width <= maxWidth) line = test;
+    else { if (line) lines.push(line); line = word; }
   }
   if (line) lines.push(line);
   return lines;
 }
 
-/* ---------------- Init ---------------- */
-
+// ---------- Init ----------
 (function init() {
-  const raw = getParam("cookie");
-  const cookieId = normalizeCookieId(raw);
+  const cookieId = normalizeCookieId(getParam("cookie"));
   const cookieName = prettyCookieName(cookieId);
 
-  // 🔒 House Blend NOT displayed
+  // IMPORTANT: No “House Blend” label
   if (cookieId) {
     cookieLineEl.textContent = `${cookieName} • Today’s message`;
     cookieLineEl.style.display = "block";
@@ -275,7 +250,5 @@ function wrapText(ctx, text, maxWidth) {
   const msg = getTodaysMessage(cookieId);
   affEl.textContent = msg;
 
-  storyBtn.addEventListener("click", () =>
-    makeStoryCard(cookieName, msg)
-  );
+  storyBtn.addEventListener("click", () => makeStoryCard(cookieName, msg));
 })();
