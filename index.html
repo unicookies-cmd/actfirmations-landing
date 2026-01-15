@@ -4,184 +4,58 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UniCookies — A Sweet Message</title>
+  <meta name="description" content="A sweet message for you, fresh each day." />
 
-  <style>
-    :root{
-      --bg:#ffffff;
-      --text:#111;
-      --muted:#666;
-      --line:#eaeaea;
-      --card:#fff;
-      --shadow: 0 10px 30px rgba(0,0,0,.06);
-      --radius: 22px;
-      --pad: 26px;
-      --max: 760px;
-    }
-
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    }
-
-    .wrap{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:60px 18px;
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding: var(--pad);
-      text-align:center;
-    }
-
-    /* Font */
-    @font-face{
-      font-family:"Bakso Sapi";
-      src:url("./assets/BaksoSapi.woff2") format("woff2");
-      font-display:swap;
-    }
-
-    .logo{
-      width:120px;
-      margin:0 auto 14px;
-      display:block;
-    }
-
-    .kicker{
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color:#777;
-      margin-bottom:14px;
-    }
-
-    .affirmation{
-      font-family:"Bakso Sapi", system-ui, sans-serif;
-      font-size:clamp(34px, 4vw, 44px);
-      line-height:1.15;
-      margin:0 auto 26px;
-      max-width:680px;
-    }
-
-    /* Actions */
-    .row{
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:22px;
-    }
-
-    button{
-      appearance:none;
-      border:1px solid #e1e1e1;
-      background:#fff;
-      padding:12px 16px;
-      border-radius:12px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    button:hover{border-color:#cfcfcf}
-
-    /* Tip divider */
-    .tip{
-      font-size:13px;
-      color:var(--muted);
-      padding-top:16px;
-      margin-bottom:18px;
-      border-top:1px solid var(--line);
-    }
-
-    .tip strong{color:var(--text)}
-
-    /* Social icons bottom */
-    .iconbar{
-      display:flex;
-      justify-content:center;
-      gap:16px;
-      padding-top:6px;
-    }
-
-    .iconbtn{
-      width:46px;
-      height:46px;
-      border-radius:14px;
-      border:1px solid #e1e1e1;
-      display:grid;
-      place-items:center;
-      color:inherit;
-      text-decoration:none;
-      background:#fff;
-    }
-
-    .iconbtn svg{
-      width:22px;
-      height:22px;
-    }
-
-    .iconbtn:hover{border-color:#cfcfcf}
-
-    .toast{
-      margin-top:14px;
-      font-size:12px;
-      color:#0a7;
-      display:none;
-    }
-  </style>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
   <main class="wrap">
     <section class="card">
 
-      <img src="./assets/logo.png" class="logo" alt="UniCookies logo" />
+      <img class="logo" src="./assets/logo.png" alt="UniCookies logo" />
+
+      <div id="cookieLine" class="cookieline">House Blend • Today’s message</div>
 
       <div class="kicker">A SWEET MESSAGE FOR YOU</div>
 
       <div id="affirmation" class="affirmation">Loading…</div>
 
+      <div id="collectionLine" class="collectionline" aria-live="polite"></div>
+
       <!-- ACTIONS -->
       <div class="row">
-        <button id="copyBtn">Copy</button>
-        <button id="shareBtn">Share</button>
-        <button id="storyBtn">Make Story Card</button>
+        <button id="copyBtn" type="button">Copy</button>
+        <button id="shareBtn" type="button">Share</button>
+        <button id="storyBtn" type="button">Make Story Card</button>
       </div>
 
       <!-- TIP DIVIDER -->
       <div class="tip">
-        Tip: Share your message and tag <strong>@eatunicookies</strong> to enter our monthly drawing.
+        Tip: Share your message and tag <strong>@eatunicookies</strong>.
       </div>
 
       <!-- SOCIAL ICONS -->
-      <nav class="iconbar">
-        <a class="iconbtn" href="https://instagram.com/eatunicookies" target="_blank" aria-label="Instagram">
+      <nav class="iconbar" aria-label="UniCookies social links">
+        <a class="iconbtn" href="https://instagram.com/eatunicookies" target="_blank" rel="noopener" aria-label="Instagram">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="5"/>
-            <circle cx="12" cy="12" r="4"/>
-            <circle cx="17.5" cy="6.5" r="1"/>
+            <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+            <circle cx="12" cy="12" r="4"></circle>
+            <circle cx="17.5" cy="6.5" r="1"></circle>
           </svg>
         </a>
 
-        <a class="iconbtn" href="https://tiktok.com/@eatunicookies" target="_blank" aria-label="TikTok">
+        <a class="iconbtn" href="https://tiktok.com/@eatunicookies" target="_blank" rel="noopener" aria-label="TikTok">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 3v10.5a4.5 4.5 0 1 1-4-4.47"/>
-            <path d="M14 3c1.2 3.4 3.6 5 7 5"/>
+            <path d="M14 3v10.5a4.5 4.5 0 1 1-4-4.47"></path>
+            <path d="M14 3c1.2 3.4 3.6 5 7 5"></path>
           </svg>
         </a>
 
-        <a class="iconbtn" href="https://youtube.com/@eatunicookies" target="_blank" aria-label="YouTube">
+        <a class="iconbtn" href="https://youtube.com/@eatunicookies" target="_blank" rel="noopener" aria-label="YouTube">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 12s0-4-1-5-5-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 5 1 9 1 8 0 9-1 1-5 1-5z"/>
-            <path d="M10 15l5-3-5-3v6z"/>
+            <path d="M22 12s0-4-1-5-5-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 5 1 9 1 8 0 9-1 1-5 1-5z"></path>
+            <path d="M10 15l5-3-5-3v6z"></path>
           </svg>
         </a>
       </nav>
@@ -191,7 +65,7 @@
     </section>
   </main>
 
-  <script src="./affirmations.js"></script>
+  <script src="./cookie-messages.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
