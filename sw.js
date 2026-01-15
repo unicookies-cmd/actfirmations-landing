@@ -1,25 +1,72 @@
-Add subtle polish (no UX changes)
+/* sw.js — UniCookies assets-only cache (safe for events)
+   - Caches core shell + assets
+   - Network-first for HTML (keeps updates)
+   - Cache-first for css/js/assets (fast + resilient)
+*/
 
-These are “premium touches” that match your brand ethos:
+const CACHE_NAME = "unicookies-assets-v1";
 
-A) Fade-in message
+const ASSETS_TO_CACHE = [
+  "/",               // root
+  "/index.html",
+  "/styles.css",
+  "/config.js",
+  "/app.js",
+  "/cookie-messages.js",
+  "/assets/logo.png",
+  "/assets/BaksoSapi.woff2"
+];
 
-In style.css:
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+  );
+  self.skipWaiting();
+});
 
-.affirmation {
-  animation: fadeUp .5s ease-out both;
-}
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.map((k) => (k === CACHE_NAME ? null : caches.delete(k))))
+    )
+  );
+  self.clients.claim();
+});
 
-@keyframes fadeUp {
-  from { opacity:0; transform: translateY(6px); }
-  to { opacity:1; transform:none; }
-}
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  const url = new URL(req.url);
 
-B) Haptic feedback (mobile only)
+  // Only handle same-origin
+  if (url.origin !== self.location.origin) return;
 
-In app.js, on copy/share:
+  const isHTML =
+    req.mode === "navigate" ||
+    (req.headers.get("accept") || "").includes("text/html");
 
-if (navigator.vibrate) navigator.vibrate(20);
+  // Network-first for HTML so updates appear
+  if (isHTML) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          return res;
+        })
+        .catch(() => caches.match(req).then((r) => r || caches.match("/index.html")))
+    );
+    return;
+  }
 
-
-Tiny. Emotional. Feels intentional.
+  // Cache-first for static assets
+  event.respondWith(
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+      return fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        return res;
+      });
+    })
+  );
+});
