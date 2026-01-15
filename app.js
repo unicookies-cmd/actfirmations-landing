@@ -1,9 +1,10 @@
 /* app.js — UniCookies "A Sweet Message"
-   - Per-cookie, per-device, per-day lock
-   - Default = House Blend pool (label hidden)
-   - Cookie identity line shown only when cookie param exists
-   - Local collection: “You scanned X of 7 cookies today”
+   - Per-cookie, per-device, per-day message lock
+   - Default pool = House Blend (label hidden)
+   - Cookie identity shown only when cookie param exists
+   - Local collection behavior (7-cookie set)
    - Copy / Share / Story Card (1080×1920)
+   - Premium subtle polish: mobile haptics
 */
 
 const el = (id) => document.getElementById(id);
@@ -17,11 +18,19 @@ const copyBtn = el("copyBtn");
 const shareBtn = el("shareBtn");
 const storyBtn = el("storyBtn");
 
+// Config (future-proof)
+const CFG = window.UNI_CONFIG || {
+  brandHandle: "@eatunicookies",
+  storyBg: "#2aace2",
+  maxCookiesPerDay: 7
+};
+
 const META = window.UNI_COOKIE_META || {};
 const HOUSE_BLEND = window.UNI_HOUSE_BLEND || [];
 const COOKIE_POOLS = window.UNI_COOKIE_MESSAGES || {};
 
-// ---------- Helpers ----------
+/* ---------------- Helpers ---------------- */
+
 function dayKey() {
   const d = new Date();
   const yyyy = d.getFullYear();
@@ -53,6 +62,11 @@ function randomIndex(max) {
   return Math.floor(Math.random() * max);
 }
 
+function haptic() {
+  // Mobile-only polish
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
 function showToast(msg) {
   toastEl.textContent = msg;
   toastEl.style.display = "block";
@@ -77,13 +91,14 @@ function getTodaysMessage(cookieId) {
   return chosen;
 }
 
-// ---------- Collection behavior ----------
+/* -------- Collection behavior (local only) -------- */
+
 function scannedKeyForToday() {
   return `unicookies_scanned_${dayKey()}`;
 }
 
 function markScanned(cookieId) {
-  if (!cookieId) return; // default doesn't count toward 7
+  if (!cookieId) return; // default doesn't count toward 7-cookie set
   try {
     const key = scannedKeyForToday();
     const raw = localStorage.getItem(key);
@@ -99,14 +114,23 @@ function renderCollectionLine() {
     const raw = localStorage.getItem(scannedKeyForToday());
     const arr = raw ? JSON.parse(raw) : [];
     const count = new Set(Array.isArray(arr) ? arr : []).size;
-    collectionLineEl.textContent = count > 0 ? `You scanned ${count} of 7 cookies today.` : "";
+
+    // Optional: enforce max cookie count message (doesn't block anything)
+    if (count > 0) {
+      collectionLineEl.textContent = `You scanned ${Math.min(count, CFG.maxCookiesPerDay)} of ${CFG.maxCookiesPerDay} cookies today.`;
+    } else {
+      collectionLineEl.textContent = "";
+    }
   } catch {
     collectionLineEl.textContent = "";
   }
 }
 
-// ---------- Actions ----------
+/* ---------------- Actions ---------------- */
+
 copyBtn.addEventListener("click", async () => {
+  haptic();
+
   try {
     await navigator.clipboard.writeText(affEl.textContent);
     showToast("Copied!");
@@ -122,6 +146,8 @@ copyBtn.addEventListener("click", async () => {
 });
 
 shareBtn.addEventListener("click", async () => {
+  haptic();
+
   const text = affEl.textContent;
   const url = window.location.href;
 
@@ -129,13 +155,13 @@ shareBtn.addEventListener("click", async () => {
     try {
       await navigator.share({
         title: "UniCookies — A Sweet Message",
-        text: `${text}\n\nTag @eatunicookies 🍪`,
+        text: `${text}\n\nTag ${CFG.brandHandle} 🍪`,
         url
       });
     } catch {}
   } else {
     try {
-      await navigator.clipboard.writeText(`${text}\n\nTag @eatunicookies 🍪\n${url}`);
+      await navigator.clipboard.writeText(`${text}\n\nTag ${CFG.brandHandle} 🍪\n${url}`);
       showToast("Share text copied!");
     } catch {
       showToast("Unable to share");
@@ -143,19 +169,23 @@ shareBtn.addEventListener("click", async () => {
   }
 });
 
-// ---------- Story Card ----------
+/* ---------------- Story Card (1080×1920) ---------------- */
+
 async function makeStoryCard(cookieName, message) {
-  const W = 1080, H = 1920;
-  const bg = "#2aace2";
+  const W = 1080;
+  const H = 1920;
+  const bg = CFG.storyBg || "#2aace2";
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d");
 
+  // Background
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
+  // Load logo
   const logo = new Image();
   logo.src = "./assets/logo.png";
   await new Promise((res, rej) => {
@@ -163,24 +193,30 @@ async function makeStoryCard(cookieName, message) {
     logo.onerror = rej;
   });
 
+  // Load Bakso font if available
   try { await document.fonts.load('48px "Bakso Sapi"'); } catch {}
 
+  // Logo placement
   const lw = 260;
   const scale = lw / logo.width;
   const lh = logo.height * scale;
   ctx.drawImage(logo, (W - lw) / 2, 140, lw, lh);
 
+  // Cookie name (only if provided)
   if (cookieName) {
     ctx.fillStyle = "rgba(255,255,255,0.92)";
     ctx.font = "700 38px system-ui";
     ctx.textAlign = "center";
+    ctx.textBaseline = "top";
     ctx.fillText(cookieName, W / 2, 140 + lh + 36);
   }
 
+  // Header
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = "700 30px system-ui";
   ctx.fillText("A SWEET MESSAGE FOR YOU", W / 2, 140 + lh + 96);
 
+  // Message size
   let fontSize = 92;
   if (message.length > 70) fontSize = 76;
   if (message.length > 100) fontSize = 64;
@@ -189,28 +225,36 @@ async function makeStoryCard(cookieName, message) {
   ctx.font = `400 ${fontSize}px "Bakso Sapi", system-ui`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
+
+  // Shadow for readability
   ctx.shadowColor = "rgba(0,0,0,0.18)";
   ctx.shadowBlur = 12;
   ctx.shadowOffsetY = 6;
 
   const lines = wrapText(ctx, message, 860);
   const lineHeight = fontSize * 1.18;
-  let y = 520;
 
+  // Vertical placement
+  let y = 520;
   for (const line of lines) {
     ctx.fillText(line, W / 2, y);
     y += lineHeight;
   }
 
+  // Footer
   ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
 
   ctx.fillStyle = "rgba(255,255,255,0.95)";
   ctx.font = "700 40px system-ui";
-  ctx.fillText("Tag @eatunicookies", W / 2, H - 120);
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(`Tag ${CFG.brandHandle}`, W / 2, H - 120);
 
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = "500 28px system-ui";
   ctx.fillText("Share this moment", W / 2, H - 70);
 
+  // Download
   const a = document.createElement("a");
   a.href = canvas.toDataURL("image/png");
   a.download = "unicookies-story.png";
@@ -218,25 +262,36 @@ async function makeStoryCard(cookieName, message) {
 }
 
 function wrapText(ctx, text, maxWidth) {
-  const words = String(text).split(/\s+/).filter(Boolean);
-  const lines = [];
-  let line = "";
+  // Support haiku line breaks: split by \n first
+  const parts = String(text).split("\n");
+  const finalLines = [];
 
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word;
-    if (ctx.measureText(test).width <= maxWidth) line = test;
-    else { if (line) lines.push(line); line = word; }
+  for (const part of parts) {
+    const words = part.split(/\s+/).filter(Boolean);
+    let line = "";
+
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width <= maxWidth) {
+        line = test;
+      } else {
+        if (line) finalLines.push(line);
+        line = word;
+      }
+    }
+    if (line) finalLines.push(line);
   }
-  if (line) lines.push(line);
-  return lines;
+
+  return finalLines;
 }
 
-// ---------- Init ----------
+/* ---------------- Init ---------------- */
+
 (function init() {
   const cookieId = normalizeCookieId(getParam("cookie"));
   const cookieName = prettyCookieName(cookieId);
 
-  // IMPORTANT: No “House Blend” label
+  // Hide “House Blend” identity entirely
   if (cookieId) {
     cookieLineEl.textContent = `${cookieName} • Today’s message`;
     cookieLineEl.style.display = "block";
@@ -250,5 +305,8 @@ function wrapText(ctx, text, maxWidth) {
   const msg = getTodaysMessage(cookieId);
   affEl.textContent = msg;
 
-  storyBtn.addEventListener("click", () => makeStoryCard(cookieName, msg));
+  storyBtn.addEventListener("click", () => {
+    haptic();
+    makeStoryCard(cookieName, msg).catch(() => showToast("Couldn’t make card — try again"));
+  });
 })();
