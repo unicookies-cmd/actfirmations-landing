@@ -1,73 +1,194 @@
-<!-- index.html — UniCookies (correct script order, cache-busting, LOADING fix) -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#2aace2" />
+  <meta name="theme-color" content="#ffffff" />
   <title>UniCookies — A Sweet Message</title>
 
-  <!-- Optional: your existing CSS -->
-  <link rel="stylesheet" href="./styles.css?v=20260208_03" />
+  <!-- HARDENED UI CSS (so the card stays centered even if external CSS breaks) -->
+  <style>
+    :root{
+      --card-w: 720px;
+      --radius: 18px;
+      --border: #e9e9ee;
+      --text: #111318;
+      --muted: #6b7280;
+      --shadow: 0 12px 40px rgba(0,0,0,.08);
+      --btn: #ffffff;
+      --btn-border:#e6e6ef;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      background:#ffffff;
+      display:flex;
+      justify-content:center;
+      padding: 28px 16px;
+    }
+    .card{
+      width:min(var(--card-w), 100%);
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px 22px 18px;
+      text-align:center;
+    }
+    .logo{
+      width: 170px;
+      height:auto;
+      display:block;
+      margin: 6px auto 10px;
+    }
+    #cookieLine{
+      margin-top: 2px;
+      font-size: 20px;
+      color:#374151;
+      font-weight: 500;
+    }
+    .subtitle{
+      margin-top: 8px;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    #affirmation{
+      margin: 18px auto 12px;
+      font-family: "Bakso Sapi", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-weight: 400;
+      font-size: clamp(44px, 6vw, 72px);
+      line-height: 1.02;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+    #collectionLine{
+      margin: 8px auto 18px;
+      color:#6b7280;
+      font-size: 18px;
+    }
+    .actions{
+      display:flex;
+      justify-content:center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 10px 0 14px;
+    }
+    .btn{
+      padding: 14px 22px;
+      border-radius: 14px;
+      border: 1px solid var(--btn-border);
+      background: var(--btn);
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      min-width: 150px;
+    }
+    .btn:active{transform: translateY(1px)}
+    .divider{
+      border:0;
+      border-top:1px solid #efeff6;
+      margin: 18px 0;
+    }
+    .tip{
+      color:#6b7280;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    .social{
+      display:flex;
+      justify-content:center;
+      gap: 18px;
+      padding-bottom: 6px;
+    }
+    .iconBtn{
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      border:1px solid var(--btn-border);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:#fff;
+      text-decoration:none;
+      color:#111;
+    }
+    .iconBtn svg{width:22px;height:22px}
+    #toast{
+      display:none;
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(17,19,24,.92);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 9999;
+    }
+  </style>
 
-  <!-- Optional: fonts (keep if you already use them) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <!-- IMPORTANT:
-       - Use defer so DOM exists before app.js runs
-       - Load cookie-messages.js BEFORE app.js
-       - Cache-bust both scripts whenever you deploy changes
-  -->
-  <script src="./cookie-messages.js?v=20260208_03" defer></script>
-  <script src="./app.js?v=20260208_03" defer></script>
+  <!-- IMPORTANT: scripts in this order, both deferred -->
+  <!-- Change v=... whenever you deploy to bust cache -->
+  <script src="./cookie-messages.js?v=20260208_07" defer></script>
+  <script src="./app.js?v=20260208_07" defer></script>
 </head>
 
 <body>
-  <main class="page">
-    <section class="card" role="region" aria-label="UniCookies message card">
-      <div class="brand">
-        <img class="logo" src="./assets/logo.png" alt="UniCookies" />
-      </div>
+  <section class="card" role="region" aria-label="UniCookies message card">
+    <img class="logo" src="./assets/logo.png" alt="UniCookies" />
 
-      <!-- Cookie line (shown only when cookie param exists) -->
-      <div id="cookieLine" class="cookie-line" style="display:none;"></div>
+    <div id="cookieLine" style="display:none;"></div>
 
-      <div class="subtitle">A SWEET MESSAGE FOR YOU</div>
+    <div class="subtitle">A SWEET MESSAGE FOR YOU</div>
 
-      <!-- ✅ This is the element app.js writes into.
-           Never remove. Default shows LOADING... -->
-      <div id="affirmation" class="affirmation">LOADING...</div>
+    <!-- app.js replaces this text -->
+    <div id="affirmation">LOADING...</div>
 
-      <!-- Collection counter -->
-      <div id="collectionLine" class="collection-line"></div>
+    <div id="collectionLine"></div>
 
-      <div class="actions">
-        <button id="copyBtn" class="btn" type="button">Copy</button>
-        <button id="shareBtn" class="btn" type="button">Share</button>
-        <button id="storyBtn" class="btn btn-primary" type="button">Make Story Card</button>
-      </div>
+    <div class="actions">
+      <button id="copyBtn" class="btn" type="button">Copy</button>
+      <button id="shareBtn" class="btn" type="button">Share</button>
+      <button id="storyBtn" class="btn" type="button">Make Story Card</button>
+    </div>
 
-      <hr class="divider" />
+    <hr class="divider" />
 
-      <div class="tip">Tip: Share your message and tag <strong>@eatunicookies</strong>.</div>
+    <div class="tip">Tip: Share your message and tag <strong>@eatunicookies</strong>.</div>
 
-      <div class="social">
-        <a class="icon" href="https://www.instagram.com/eatunicookies/" target="_blank" rel="noopener" aria-label="Instagram">
-          <!-- Replace with your icon SVG if you have it -->
-          <span>IG</span>
-        </a>
-        <a class="icon" href="https://www.tiktok.com/@eatunicookies" target="_blank" rel="noopener" aria-label="TikTok">
-          <span>TT</span>
-        </a>
-        <a class="icon" href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
-          <span>YT</span>
-        </a>
-      </div>
+    <div class="social" aria-label="Social links">
+      <a class="iconBtn" href="https://www.instagram.com/eatunicookies/" target="_blank" rel="noopener" aria-label="Instagram">
+        <!-- Instagram icon -->
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M7.5 2.8h9A4.7 4.7 0 0 1 21.2 7.5v9a4.7 4.7 0 0 1-4.7 4.7h-9A4.7 4.7 0 0 1 2.8 16.5v-9A4.7 4.7 0 0 1 7.5 2.8Z" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M12 16.2a4.2 4.2 0 1 0 0-8.4 4.2 4.2 0 0 0 0 8.4Z" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M17.2 6.8h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+      </a>
 
-      <!-- Toast -->
-      <div id="toast" class="toast" style="display:none;"></div>
-    </section>
-  </main>
+      <a class="iconBtn" href="https://www.tiktok.com/@eatunicookies" target="_blank" rel="noopener" aria-label="TikTok">
+        <!-- TikTok-ish note icon -->
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 3v10.2a4.2 4.2 0 1 1-3.2-4.06" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M14 3c1.1 2.6 3 4.2 6 4.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </a>
+
+      <a class="iconBtn" href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
+        <!-- YouTube play icon -->
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10 8.5v7l6-3.5-6-3.5Z" fill="currentColor"/>
+          <path d="M21 12c0 4-1 6-6 6H9c-5 0-6-2-6-6s1-6 6-6h6c5 0 6 2 6 6Z" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <div id="toast"></div>
 </body>
 </html>
