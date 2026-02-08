@@ -1,34 +1,30 @@
-/* cookie-messages.js (FIXED)
-   - HOUSE_BLEND retains your original library
-   - COOKIE_MESSAGES generated per cookie at runtime
-   - FIX: do NOT inject vibe/category/filter words into the message text
+/* cookie-messages.js — Generator (FIXED)
+   - Generates messages
+   - theme + vibe drive WHICH endings are chosen (tone/mood)
+   - ✅ Output logic is ONLY: STEM + ENDING
+   - ✅ theme/vibe NEVER appear in the final text
+   - ✅ No emdash/hyphen concatenation
 */
 
 (function () {
-  const clean = (arr) => arr.map(s => String(s).trim()).filter(Boolean);
+  /* ---------------------------
+     Cookie meta (UI only)
+  --------------------------- */
+  const COOKIE_META = {
+    "confetti-sparkle": { name: "Confetti Sparkle", tone: "playful" },
+    "incognidough":     { name: "Incognidough",     tone: "grounded" },
+    "sunburst-love":    { name: "Sunburst Love",    tone: "tender" },
+    "moo-moon":         { name: "Moo Moon",         tone: "brave" },
+    "starry-night":     { name: "Starry Night",     tone: "visionary" },
+    "banana-blossom":   { name: "Banana Blossom",   tone: "light" },
+    "smore-unity":      { name: "S'more Unity",     tone: "unity" }
+  };
 
-  // 1) HOUSE BLEND (cleaned and deduped)
-  const HOUSE_BLEND_RAW = [
-    "I am allowed to start messy.",
-    "My pace is still progress.",
-    "I don’t need permission to evolve.",
-    "Today I choose clarity over chaos.",
-    "I can be nervous and still be powerful.",
-    "What’s for me won’t miss me.",
-    "I trust my taste. It’s guiding me.",
-    "Small steps still move mountains.",
-    "My work deserves to be seen.",
-    "I finish what I start—one step at a time.",
-    "I’m building something real.",
-    "I am becoming undeniable.",
-    "Direction over distraction.",
-    "I am safe to be visible.",
-    "I release perfection and keep the promise.",
-    "I create even when it’s quiet.",
-    "I choose discipline, not pressure.",
-    "I can reset and still win today.",
-    "I’m aligned with what’s next.",
-    "I don’t chase—I attract.",
+  /* ---------------------------
+     Anchor pool (your 340-style messages + the ones you pasted)
+     Keep these as complete, single thoughts.
+  --------------------------- */
+  const ANCHOR_MESSAGES = [
     "I am worthy of rest.",
     "Progress, not perfection, is the goal.",
     "My feelings are valid, even if others don't understand them.",
@@ -76,220 +72,326 @@
     "I speak my truth with kindness.",
     "I have the strength to let go.",
     "I honor my unique pace and timing.",
-    "Your effort does not go unnoticed.",
+    "My focus creates my reality.",
+    "I treat myself like someone I love.",
+    "I choose to see challenges as opportunities.",
+
+    "You matter more than you realize — and today, you’re appreciated.",
     "Someone thought of you when this cookie was made.",
-    "You deserve moments of sweetness.",
-    "You are appreciated today — not someday.",
-    "You bring something no one else can.",
-    "This cookie exists because you matter.",
-    "Today is better because you showed up.",
-    "You are allowed to slow down.",
-    "You are doing better than you think.",
-    "You’re allowed to feel proud of yourself.",
-    "You don’t have to earn belonging — you already have it.",
+    "You are seen, even in the moments you feel overlooked.",
     "Your presence adds value here.",
-    "Your care makes a difference."
+    "You don’t have to earn belonging — you already have it.",
+    "Today is better because you showed up.",
+    "You are an important part of something bigger.",
+    "Your effort does not go unnoticed.",
+    "You bring something no one else can.",
+    "This moment is a small thank-you, just for you.",
+    "You are allowed to feel proud of yourself.",
+    "Even on quiet days, your contribution matters.",
+    "You are appreciated exactly as you are.",
+    "You make a difference by being you.",
+    "You deserve kindness — including from yourself.",
+    "You belong here.",
+    "You are valued more than words can say.",
+    "Your work, care, and energy are felt.",
+    "You are worthy of being celebrated.",
+    "Someone is grateful for you today.",
+    "You are not invisible.",
+    "You are allowed to slow down.",
+    "Your heart shows in what you do.",
+    "You are enough — right now.",
+    "You add meaning to ordinary moments.",
+    "You are doing better than you think.",
+    "You deserve moments of sweetness.",
+    "Your presence is appreciated.",
+    "You are part of what makes this work.",
+    "You matter to this story.",
+    "You don’t need to prove your worth.",
+    "You are respected here.",
+    "Your voice matters.",
+    "You are allowed to receive.",
+    "You bring warmth wherever you go.",
+    "You are valued beyond productivity.",
+    "Your effort is felt, even when it’s quiet.",
+    "You are not forgotten.",
+    "You are appreciated today — not someday.",
+    "You make things better by being here.",
+    "You deserve recognition.",
+    "You are trusted.",
+    "You are supported more than you know.",
+    "Your contribution counts.",
+    "You are allowed to take up space.",
+    "You belong exactly where you are.",
+    "You are part of something meaningful.",
+    "Your care makes a difference.",
+    "You are worthy of appreciation.",
+    "You are doing important work.",
+    "You are not just another name.",
+    "You are valued for who you are.",
+    "Your presence matters.",
+    "You deserve moments of joy.",
+    "You are appreciated today.",
+    "You are seen — truly.",
+    "You make an impact, even in small ways.",
+    "You are allowed to feel proud.",
+    "You are part of what makes this special.",
+    "You are cared about.",
+    "You bring heart into what you do.",
+    "You are important to this community.",
+    "You deserve to be acknowledged.",
+    "You are valued beyond results.",
+    "You are appreciated for showing up.",
+    "You matter — full stop.",
+    "You are worthy of kindness.",
+    "You are an essential part of this.",
+    "You are doing meaningful work.",
+    "You belong here, just as you are.",
+    "You are more than what you produce.",
+    "You are appreciated today, not just on special occasions.",
+    "You bring balance and care.",
+    "You are seen in ways you may not notice.",
+    "You deserve this moment of sweetness.",
+    "You are valued for your effort and your heart.",
+    "You make a difference by being present.",
+    "You are part of what makes this place feel human.",
+    "You are appreciated for who you are.",
+    "You matter more than metrics.",
+    "You are recognized.",
+    "You bring something unique.",
+    "You are not overlooked.",
+    "You are worthy of appreciation without conditions.",
+    "You are important to this team, this moment, this work.",
+    "You are allowed to feel appreciated.",
+    "You add meaning to the everyday.",
+    "You are seen and valued.",
+    "You are deserving of gratitude.",
+    "You matter — even on ordinary days.",
+    "You are appreciated more than you know.",
+    "You are valued beyond titles.",
+    "You are noticed.",
+    "You bring care into the world.",
+    "You are worthy of recognition.",
+    "You are seen, respected, and appreciated.",
+    "You are an important part of this moment.",
+    "This cookie exists because you matter.",
+
+    "I am allowed to start messy.",
+    "My pace is still progress.",
+    "I don’t need permission to evolve.",
+    "Today I choose clarity over chaos.",
+    "I can be nervous and still be powerful.",
+    "What’s for me won’t miss me.",
+    "I trust my taste. It’s guiding me.",
+    "I finish what I start—one step at a time.",
+    "I’m building something real.",
+    "I am becoming undeniable.",
+    "I create even when it’s quiet.",
+    "I let go of perfection and keep the promise.",
+    "My work deserves to be seen.",
+    "I’m aligned with what’s next.",
+    "Small actions create big outcomes.",
+    "I am disciplined, not pressured.",
+    "I choose direction over distraction.",
+    "I am safe to be visible.",
+    "I don’t chase—I attract.",
+    "I’m proud of my effort today."
   ];
 
-  const HOUSE_BLEND = Array.from(new Set(clean(HOUSE_BLEND_RAW)));
+  /* ---------------------------
+     Generator: stems + endings
+     theme/vibe drive selection only
+  --------------------------- */
 
-  // 2) Cookie metadata (KEEP for UI + future targeting, but don't inject vibe into message text)
-  const COOKIE_META = {
-    "confetti-sparkle": {
-      name: "Confetti Sparkle",
-      anchor: "You sparkle. Let your light show.",
-      vibe: ["bright", "playful", "magnetic", "celebratory", "radiant"]
-    },
-    "incognidough": {
-      name: "Incognidough",
-      anchor: "Be you. You are enough.",
-      vibe: ["quiet", "grounded", "self-honoring", "real", "unmasked"]
-    },
-    "sunburst-love": {
-      name: "Sunburst Love",
-      anchor: "You matter.",
-      vibe: ["warm", "tender", "heart-led", "safe", "seen"]
-    },
-    "moo-moon": {
-      name: "Moo Moon",
-      anchor: "Be fearless.",
-      vibe: ["brave", "steady", "bold", "protective", "calm-courage"]
-    },
-    "starry-night": {
-      name: "Starry Night",
-      anchor: "Dream big.",
-      vibe: ["visionary", "mystic", "expansive", "poetic", "future-facing"]
-    },
-    "banana-blossom": {
-      name: "Banana Blossom",
-      anchor: "Choose joy.",
-      vibe: ["light", "fresh", "sunny", "simple"]
-    },
-    "smore-unity": {
-      name: "S'more Unity",
-      anchor: "More unity. More together.",
-      vibe: ["community", "bond", "partners", "belonging", "we"]
-    }
+  const STEMS = [
+    "I am",
+    "I choose",
+    "I allow myself to",
+    "I give myself permission to",
+    "I trust",
+    "I release",
+    "I honor",
+    "I remember",
+    "I can",
+    "I deserve",
+    "I return to",
+    "I protect",
+    "I focus on",
+    "I keep going"
+  ];
+
+  // internal tone targets (not printed)
+  const THEMES_BY_TONE = {
+    playful:   ["joy", "spark", "celebration"],
+    grounded:  ["calm", "steadiness", "clarity"],
+    tender:    ["care", "softness", "belonging"],
+    brave:     ["courage", "confidence", "action"],
+    visionary: ["direction", "future", "imagination"],
+    light:     ["ease", "relief", "fresh start"],
+    unity:     ["together", "support", "connection"]
   };
 
-  // 3) Frames (human + genuine; no “vibe injection”)
-  const chakraFrames = [
-    { stem: "I am", themes: ["safe", "steady", "held", "grounded", "supported"] },
-    { stem: "I feel", themes: ["alive", "soft", "open", "true", "present"] },
-    { stem: "I do", themes: ["move", "choose", "commit", "begin", "build"] },
-    { stem: "I love", themes: ["kindly", "bravely", "without shrinking", "with boundaries", "with ease"] },
-    { stem: "I speak", themes: ["clearly", "gently", "honestly", "with respect", "with courage"] },
-    { stem: "I see", themes: ["the lesson", "the path", "the opening", "the truth"] },
-    { stem: "I know", themes: ["I’m guided", "timing is real", "I’m not late", "I’m becoming", "this will make sense"] }
-  ];
+  const VIBES_BY_TONE = {
+    playful:   ["bright", "uplifting", "fun"],
+    grounded:  ["steady", "centered", "clear"],
+    tender:    ["warm", "safe", "kind"],
+    brave:     ["capable", "strong", "ready"],
+    visionary: ["open", "curious", "focused"],
+    light:     ["gentle", "easy", "simple"],
+    unity:     ["connected", "supported", "seen"]
+  };
 
-  const endings = [
-    "even when the room is loud.",
-    "without asking permission.",
-    "one breath at a time.",
-    "and I don’t have to rush it.",
-    "because my nervous system deserves peace.",
-    "and that is enough for today.",
-    "in a way that feels like home.",
-    "with softness and spine.",
-    "like a secret that protects me.",
-    "like light returning."
-  ];
-
-  const haikuLines = [
-    ["Slow breath in the chest", "A quiet yes in the body", "Sweetness finds its place"],
-    ["Not everything is urgent", "Your heart can set the tempo", "Walk like you belong"],
-    ["A small pause matters", "You are not behind in life", "Begin where you are"],
-    ["Even storms have ends", "Hold steady, then choose again", "The sky will open"],
-    ["Hands warm, mind softer", "Let the day be human-sized", "You are allowed rest"],
-    ["You are still growing", "Even in invisible ways", "Roots drink in silence"],
-    ["Today, choose gentle", "Strong can look like breathing", "Quiet is a win"]
-  ];
-
-  // “Divination energy” without labels that feel like fortune/tarot copy
-  const gentlePrompts = [
-    "Today: choose the kinder route.",
-    "If you feel rushed, return to your breath.",
-    "A small yes is still a yes. Honor it.",
-    "You’ll know it’s right when your body unclenches.",
-    "Something good is already in motion—stay present.",
-    "Your next step doesn’t need applause—just honesty.",
-    "A door opens when you stop forcing it."
-  ];
-
-  // Cookie-specific injectors (these are REAL lines; safe to show)
-  const cookieVoiceInjectors = {
-    "confetti-sparkle": [
-      "Make room for joy—your light belongs here.",
-      "Be the sparkle on purpose.",
-      "You don’t have to dim to be loved.",
-      "Let it be obvious that you’re alive."
+  // Endings are *complete clauses* that finish the thought after the stem.
+  // No leading dashes. No vibe words here.
+  const ENDINGS_BY_TONE = {
+    playful: [
+      "enjoy one small moment today.",
+      "let myself celebrate the progress I made.",
+      "make room for sweetness without guilt.",
+      "allow joy to be practical and real.",
+      "choose a lighter way to move through today."
     ],
-    "incognidough": [
-      "You can be private and powerful.",
-      "You’re allowed to be unseen while you heal.",
-      "You don’t owe the world a performance.",
-      "Be real, not readable."
+    grounded: [
+      "take the next step at my own pace.",
+      "come back to my breath and reset.",
+      "choose what is clear and simple.",
+      "do one thing fully and let it be enough.",
+      "protect my peace with steady boundaries."
     ],
-    "sunburst-love": [
-      "You deserve softness that stays.",
-      "You matter without achieving anything today.",
-      "Let love be practical: rest, water, boundaries.",
-      "You are worthy of gentle attention."
+    tender: [
+      "speak to myself with kindness today.",
+      "accept softness as strength.",
+      "allow rest to count as progress.",
+      "treat myself like someone I love.",
+      "remember that I belong here."
     ],
-    "moo-moon": [
-      "Fear can ride along; it doesn’t get the wheel.",
-      "Brave is a decision you can repeat.",
-      "Stand tall—your future is listening.",
-      "Courage can be quiet."
+    brave: [
+      "take action even if I feel nervous.",
+      "show up anyway, one step at a time.",
+      "trust myself to handle what comes next.",
+      "choose courage over comfort right now.",
+      "keep going even when it’s imperfect."
     ],
-    "starry-night": [
-      "Your vision is valid before it’s proven.",
-      "Let wonder lead—then do the work.",
-      "Dreams are blueprints in disguise.",
-      "Look up. Your life is bigger than this hour."
+    visionary: [
+      "stay aligned with what matters most.",
+      "choose clarity over chaos today.",
+      "take the next step toward what I want.",
+      "keep building—my progress is real.",
+      "trust the timing while I grow."
     ],
-    "banana-blossom": [
-      "Joy can be disciplined—choose it again.",
-      "Make the day lighter on purpose.",
-      "Small laughter is medicine.",
-      "You’re allowed to enjoy your own life."
+    light: [
+      "release pressure and keep moving.",
+      "let today be easier than yesterday.",
+      "allow myself to feel okay right now.",
+      "stop forcing and start flowing again.",
+      "choose relief in this moment."
     ],
-    "smore-unity": [
-      "You belong in the circle—pull up close.",
-      "Choose togetherness over perfection.",
-      "Let your people hold some of the weight.",
-      "Unity is a daily practice."
+    unity: [
+      "let support in instead of doing it alone.",
+      "choose connection over isolation today.",
+      "remember I’m part of something meaningful.",
+      "offer and receive kindness freely.",
+      "trust that I’m supported more than I know."
     ]
   };
 
-  function generateCookiePool(cookieId) {
-    const meta = COOKIE_META[cookieId];
-    const inject = cookieVoiceInjectors[cookieId] || [];
-    const set = new Set();
+  /* ---------------------------
+     Utilities / safety
+  --------------------------- */
 
-    // Anchor & direct lines
-    set.add(meta?.anchor || "A sweet message for you.");
-    inject.forEach(s => set.add(s));
-    gentlePrompts.forEach(s => set.add(s));
+  const clean = (s) => String(s || "").replace(/\s+/g, " ").trim();
 
-    // Chakra combinations (FIXED: no vibe appended)
-    for (const frame of chakraFrames) {
-      for (const theme of frame.themes) {
-        for (let i = 0; i < endings.length; i++) {
-          const line = `${frame.stem} ${theme} ${endings[i]}`
-            .replace(/\s+/g, " ")
-            .trim();
-          set.add(line);
-        }
-      }
-    }
-
-    // Haikus
-    for (const h of haikuLines) {
-      set.add(`${h[0]}\n${h[1]}\n${h[2]}`);
-    }
-
-    // Premium “thoughtful positioning” moments (human, not gimmicky)
-    const philosophy = [
-      "Your body is giving you feedback. Listen with respect.",
-      "Don’t confuse speed with certainty.",
-      "The version of you that survived deserves celebration.",
-      "Let your inner child be safe again—start with one gentle choice.",
-      "Discipline isn’t punishment; it’s devotion to peace.",
-      "You can outgrow a belief without apologizing.",
-      "Being soft is not being weak; it’s being well."
-    ];
-    philosophy.forEach(s => set.add(s));
-
-    // Blend in shared House language for coherence
-    for (let i = 0; i < Math.min(50, HOUSE_BLEND.length); i++) {
-      set.add(HOUSE_BLEND[i]);
-    }
-
-    // Expand safely to 150+ without adding metadata words
-    const modifiers = ["today", "right now", "in this moment", "this morning", "this afternoon", "tonight"];
-    const closers = ["You’re safe to begin.", "You’re safe to pause.", "You’re safe to be seen.", "You’re safe to try again."];
-
-    const base = Array.from(set);
-    for (let i = 0; i < base.length && set.size < 160; i++) {
-      const b = base[i];
-      if (b.includes("\n")) continue; // don’t ruin haikus
-      set.add(`${b} (${modifiers[i % modifiers.length]})`);
-      if (set.size < 175) set.add(`${b} ${closers[i % closers.length]}`);
-    }
-
-    return Array.from(set);
+  // In case any old pattern sneaks in, remove "—word" immediately after stem phrases
+  function removeStemFusionArtifacts(s) {
+    // Examples to kill: "I am—", "I choose—", "I do choose—"
+    return s
+      .replace(/\b(I am|I choose|I do|I love|I see|I speak|I feel)\s*[—–-]\s*\w+/gi, "$1")
+      .replace(/\s+/g, " ")
+      .trim();
   }
 
-  // Export to window
-  window.UNI_COOKIE_META = COOKIE_META;
+  function ensurePunctuation(s) {
+    const t = clean(s);
+    return /[.!?]$/.test(t) ? t : `${t}.`;
+  }
+
+  function buildSentence(stem, ending) {
+    // Output strictly: stem + ending
+    let out = `${clean(stem)} ${clean(ending)}`;
+    out = removeStemFusionArtifacts(out);
+    out = ensurePunctuation(out);
+    return out;
+  }
+
+  function seededRand(seedStr) {
+    let h = 2166136261;
+    for (let i = 0; i < seedStr.length; i++) {
+      h ^= seedStr.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return function () {
+      h ^= h << 13; h ^= h >>> 17; h ^= h << 5;
+      return (h >>> 0) / 4294967296;
+    };
+  }
+
+  function pick(arr, r) {
+    if (!Array.isArray(arr) || arr.length === 0) return "";
+    return arr[Math.floor(r() * arr.length)];
+  }
+
+  function uniquePush(arr, set, value) {
+    const v = clean(value);
+    if (!v) return;
+    if (set.has(v)) return;
+    set.add(v);
+    arr.push(v);
+  }
+
+  function generateForTone(tone, n, seedKey) {
+    const r = seededRand(`${tone}::${seedKey}`);
+    const themes = THEMES_BY_TONE[tone] || [];
+    const vibes  = VIBES_BY_TONE[tone]  || [];
+    const ends   = ENDINGS_BY_TONE[tone] || ENDINGS_BY_TONE.grounded;
+
+    const out = [];
+    const seen = new Set();
+
+    for (let i = 0; i < n; i++) {
+      // theme/vibe used ONLY as internal selectors (never printed)
+      const _theme = pick(themes, r);
+      const _vibe  = pick(vibes, r);
+      void _theme; void _vibe;
+
+      const stem = pick(STEMS, r);
+      const ending = pick(ends, r);
+
+      uniquePush(out, seen, buildSentence(stem, ending));
+    }
+    return out;
+  }
+
+  /* ---------------------------
+     Build final pools
+  --------------------------- */
+
+  const HOUSE_BLEND = ANCHOR_MESSAGES.map(clean).filter(Boolean);
 
   const COOKIE_MESSAGES = {};
-  Object.keys(COOKIE_META).forEach(id => {
-    COOKIE_MESSAGES[id] = generateCookiePool(id);
+  Object.keys(COOKIE_META).forEach((cookieId) => {
+    const tone = COOKIE_META[cookieId]?.tone || "grounded";
+    const generated = generateForTone(tone, 160, cookieId);
+
+    // Merge: anchors first, then generated
+    const merged = [];
+    const seen = new Set();
+    HOUSE_BLEND.forEach(m => uniquePush(merged, seen, m));
+    generated.forEach(m => uniquePush(merged, seen, m));
+
+    COOKIE_MESSAGES[cookieId] = merged;
   });
 
+  // Export
+  window.UNI_COOKIE_META = COOKIE_META;
   window.UNI_HOUSE_BLEND = HOUSE_BLEND;
   window.UNI_COOKIE_MESSAGES = COOKIE_MESSAGES;
 })();
