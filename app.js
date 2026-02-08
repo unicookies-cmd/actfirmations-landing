@@ -1,8 +1,10 @@
-/* app.js — UniCookies (works with fixed generator cookie-messages.js)
-   ✅ Fixes LOADING… on direct visit (runs after DOM via defer)
-   ✅ Purges stored bad values ("undefined", etc)
-   ✅ Optional recalibrate today via ?recalibrate=1 (does NOT wipe daily messages by default)
-   ✅ Never prints theme/vibe; uses cookie-messages pools only
+/* app.js — UniCookies "A Sweet Message" (safe, preserves original UX)
+   - Per-cookie, per-device, per-day message lock
+   - Cookie identity shown only when cookie param exists
+   - Local collection behavior (7-cookie set)
+   - Copy / Share / Story Card (1080×1920)
+   - Purges stored "undefined" etc
+   - Shows a useful error if cookie-messages.js failed to load (instead of LOADING forever)
 */
 
 const el = (id) => document.getElementById(id);
@@ -22,13 +24,12 @@ const CFG = window.UNI_CONFIG || {
   maxCookiesPerDay: 7
 };
 
-const META = window.UNI_COOKIE_META || {};
-const HOUSE_BLEND = window.UNI_HOUSE_BLEND || [];
-const COOKIE_POOLS = window.UNI_COOKIE_MESSAGES || {};
-
 function dayKey() {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function getParam(name) {
@@ -36,12 +37,51 @@ function getParam(name) {
   return (u.searchParams.get(name) || "").trim();
 }
 
-function normalizeCookieId(raw) {
+function haptic() {
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function showToast(msg) {
+  if (!toastEl) return;
+  toastEl.textContent = msg;
+  toastEl.style.display = "block";
+  setTimeout(() => (toastEl.style.display = "none"), 1400);
+}
+
+/* -------- Storage cleanup (kills "undefined") -------- */
+function purgeBadStoredMessages() {
+  const BAD = new Set(["undefined", "null", "[object Object]", ""]);
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (!k) continue;
+    if (!k.startsWith("unicookies_msg_")) continue;
+
+    const v = (localStorage.getItem(k) ?? "").trim();
+    if (BAD.has(v)) localStorage.removeItem(k);
+  }
+}
+
+/* -------- Pools from cookie-messages.js -------- */
+function getPoolsOrFail() {
+  const META = window.UNI_COOKIE_META || {};
+  const HOUSE_BLEND = window.UNI_HOUSE_BLEND || [];
+  const COOKIE_POOLS = window.UNI_COOKIE_MESSAGES || {};
+
+  const ok =
+    typeof META === "object" &&
+    Array.isArray(HOUSE_BLEND) &&
+    HOUSE_BLEND.length > 0 &&
+    typeof COOKIE_POOLS === "object";
+
+  return { ok, META, HOUSE_BLEND, COOKIE_POOLS };
+}
+
+function normalizeCookieId(raw, META) {
   const id = String(raw || "").toLowerCase().trim();
   return META[id] ? id : "";
 }
 
-function prettyCookieName(cookieId) {
+function prettyCookieName(cookieId, META) {
   return META[cookieId]?.name || "";
 }
 
@@ -56,70 +96,28 @@ function randomIndex(max) {
   return Math.floor(Math.random() * n);
 }
 
-function haptic() {
-  if (navigator.vibrate) navigator.vibrate(20);
-}
-
-function showToast(msg) {
-  if (!toastEl) return;
-  toastEl.textContent = msg;
-  toastEl.style.display = "block";
-  setTimeout(() => (toastEl.style.display = "none"), 1400);
-}
-
-function asArrayPool(maybePool) {
-  return Array.isArray(maybePool) ? maybePool : [];
-}
-
-function getPool(cookieId) {
-  const cookiePool = cookieId ? asArrayPool(COOKIE_POOLS[cookieId]) : [];
-  const housePool = asArrayPool(HOUSE_BLEND);
-
-  if (cookiePool.length) return cookiePool;
-  if (housePool.length) return housePool;
-
-  return ["A sweet message for you."];
-}
-
-// Removes only bad stored values; optional reset for today on demand
-function purgeBadStoredMessages({ resetToday = false } = {}) {
-  const BAD = new Set(["undefined", "null", "[object Object]", ""]);
-  const today = dayKey();
-
-  for (let i = localStorage.length - 1; i >= 0; i--) {
-    const k = localStorage.key(i);
-    if (!k || !k.startsWith("unicookies_msg_")) continue;
-
-    const v = (localStorage.getItem(k) ?? "").trim();
-
-    // Always remove junk
-    if (BAD.has(v)) {
-      localStorage.removeItem(k);
-      continue;
-    }
-
-    // Only clear today's saved messages if explicitly requested
-    if (resetToday && k.endsWith(`_${today}`)) {
-      localStorage.removeItem(k);
-    }
+function getPool(cookieId, HOUSE_BLEND, COOKIE_POOLS) {
+  if (cookieId && Array.isArray(COOKIE_POOLS[cookieId]) && COOKIE_POOLS[cookieId].length) {
+    return COOKIE_POOLS[cookieId];
   }
+  return HOUSE_BLEND;
 }
 
-function getTodaysMessage(cookieId) {
-  const pool = getPool(cookieId);
-  const key = storageKeyForToday(cookieId);
+function getTodaysMessage(cookieId, HOUSE_BLEND, COOKIE_POOLS) {
+  const pool = getPool(cookieId, HOUSE_BLEND, COOKIE_POOLS);
+  if (!pool.length) return "A sweet message for you.";
 
+  const key = storageKeyForToday(cookieId);
   const existing = localStorage.getItem(key);
 
-  // Use existing only if valid
   if (existing && existing !== "undefined" && existing.trim() !== "") return existing;
 
-  const chosen = pool[randomIndex(pool.length)] || "A sweet message for you.";
+  const chosen = pool[randomIndex(pool.length)];
   localStorage.setItem(key, chosen);
   return chosen;
 }
 
-/* Collection counter */
+/* -------- Collection behavior -------- */
 function scannedKeyForToday() {
   return `unicookies_scanned_${dayKey()}`;
 }
@@ -143,16 +141,18 @@ function renderCollectionLine() {
     const arr = raw ? JSON.parse(raw) : [];
     const count = new Set(Array.isArray(arr) ? arr : []).size;
 
-    collectionLineEl.textContent =
-      count > 0
-        ? `You scanned ${Math.min(count, CFG.maxCookiesPerDay)} of ${CFG.maxCookiesPerDay} cookies today.`
-        : "";
+    if (count > 0) {
+      collectionLineEl.textContent =
+        `You scanned ${Math.min(count, CFG.maxCookiesPerDay)} of ${CFG.maxCookiesPerDay} cookies today.`;
+    } else {
+      collectionLineEl.textContent = "";
+    }
   } catch {
     collectionLineEl.textContent = "";
   }
 }
 
-/* Copy / Share */
+/* -------- Copy / Share -------- */
 if (copyBtn) {
   copyBtn.addEventListener("click", async () => {
     haptic();
@@ -163,7 +163,14 @@ if (copyBtn) {
       await navigator.clipboard.writeText(text);
       showToast("Copied!");
     } catch {
-      showToast("Copy failed");
+      // Fallback
+      const t = document.createElement("textarea");
+      t.value = text;
+      document.body.appendChild(t);
+      t.select();
+      document.execCommand("copy");
+      document.body.removeChild(t);
+      showToast("Copied!");
     }
   });
 }
@@ -195,31 +202,31 @@ if (shareBtn) {
   });
 }
 
-/* Story Card (optional download) */
+/* -------- Story Card -------- */
 async function makeStoryCard(cookieName, message) {
   const W = 1080;
   const H = 1920;
+  const bg = CFG.storyBg || "#2aace2";
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d");
 
-  // BG
-  ctx.fillStyle = CFG.storyBg || "#2aace2";
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  // Logo
   const logo = new Image();
   logo.src = "./assets/logo.png";
   await new Promise((res, rej) => { logo.onload = res; logo.onerror = rej; });
+
+  try { await document.fonts.load('48px "Bakso Sapi"'); } catch {}
 
   const lw = 260;
   const scale = lw / logo.width;
   const lh = logo.height * scale;
   ctx.drawImage(logo, (W - lw) / 2, 140, lw, lh);
 
-  // Cookie name (optional)
   if (cookieName) {
     ctx.fillStyle = "rgba(255,255,255,0.92)";
     ctx.font = "700 38px system-ui";
@@ -228,18 +235,16 @@ async function makeStoryCard(cookieName, message) {
     ctx.fillText(cookieName, W / 2, 140 + lh + 36);
   }
 
-  // Header
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = "700 30px system-ui";
   ctx.fillText("A SWEET MESSAGE FOR YOU", W / 2, 140 + lh + 96);
 
-  // Message (big)
   let fontSize = 92;
   if (message.length > 70) fontSize = 76;
   if (message.length > 100) fontSize = 64;
 
   ctx.fillStyle = "#fff";
-  ctx.font = `400 ${fontSize}px system-ui`;
+  ctx.font = `400 ${fontSize}px "Bakso Sapi", system-ui`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
 
@@ -259,13 +264,11 @@ async function makeStoryCard(cookieName, message) {
   ctx.shadowBlur = 0;
   ctx.shadowOffsetY = 0;
 
-  // Footer
   ctx.fillStyle = "rgba(255,255,255,0.95)";
   ctx.font = "700 40px system-ui";
   ctx.textBaseline = "alphabetic";
   ctx.fillText(`Tag ${CFG.brandHandle}`, W / 2, H - 120);
 
-  // Download
   const a = document.createElement("a");
   a.href = canvas.toDataURL("image/png");
   a.download = "unicookies-story.png";
@@ -279,34 +282,29 @@ function wrapText(ctx, text, maxWidth) {
   for (const part of parts) {
     const words = part.split(/\s+/).filter(Boolean);
     let line = "";
-
     for (const word of words) {
       const test = line ? `${line} ${word}` : word;
-      if (ctx.measureText(test).width <= maxWidth) {
-        line = test;
-      } else {
-        if (line) finalLines.push(line);
-        line = word;
-      }
+      if (ctx.measureText(test).width <= maxWidth) line = test;
+      else { if (line) finalLines.push(line); line = word; }
     }
     if (line) finalLines.push(line);
   }
   return finalLines;
 }
 
-/* Init */
+/* -------- Init -------- */
 (function init() {
-  // If cookie-messages.js failed to load, show a helpful error instead of LOADING forever
-  const hasPools =
-    Array.isArray(window.UNI_HOUSE_BLEND) &&
-    window.UNI_HOUSE_BLEND.length > 0;
+  purgeBadStoredMessages();
 
-  // Purge bad stored values always; only reset today if user requests
-  const recalibrate = getParam("recalibrate") === "1";
-  purgeBadStoredMessages({ resetToday: recalibrate });
+  // If scripts are cached wrong / cookie-messages.js failed, don't stay on LOADING...
+  const { ok, META, HOUSE_BLEND, COOKIE_POOLS } = getPoolsOrFail();
+  if (!ok) {
+    if (affEl) affEl.textContent = "Message system not loaded — refresh once.";
+    return;
+  }
 
-  const cookieId = normalizeCookieId(getParam("cookie"));
-  const cookieName = prettyCookieName(cookieId);
+  const cookieId = normalizeCookieId(getParam("cookie"), META);
+  const cookieName = prettyCookieName(cookieId, META);
 
   if (cookieLineEl) {
     if (cookieId) {
@@ -320,12 +318,7 @@ function wrapText(ctx, text, maxWidth) {
   markScanned(cookieId);
   renderCollectionLine();
 
-  if (!hasPools) {
-    if (affEl) affEl.textContent = "Message system offline — please refresh.";
-    return;
-  }
-
-  const msg = getTodaysMessage(cookieId);
+  const msg = getTodaysMessage(cookieId, HOUSE_BLEND, COOKIE_POOLS);
   if (affEl) affEl.textContent = msg;
 
   if (storyBtn) {
