@@ -1,83 +1,73 @@
+<!-- index.html — UniCookies (correct script order, cache-busting, LOADING fix) -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#2aace2" />
   <title>UniCookies — A Sweet Message</title>
-  <meta name="description" content="A sweet message for you, fresh each day." />
 
-  <!-- IMPORTANT: file is style.css (not styles.css) -->
-  <link rel="stylesheet" href="./styles.css?v=20260115" />
+  <!-- Optional: your existing CSS -->
+  <link rel="stylesheet" href="./styles.css?v=20260208_03" />
+
+  <!-- Optional: fonts (keep if you already use them) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- IMPORTANT:
+       - Use defer so DOM exists before app.js runs
+       - Load cookie-messages.js BEFORE app.js
+       - Cache-bust both scripts whenever you deploy changes
+  -->
+  <script src="./cookie-messages.js?v=20260208_03" defer></script>
+  <script src="./app.js?v=20260208_03" defer></script>
 </head>
 
 <body>
-  <main class="wrap">
-    <section class="card">
-
-      <img class="logo" src="./assets/logo.png" alt="UniCookies logo" />
-
-      <!-- Cookie identity line (shown only for cookie param) -->
-      <div id="cookieLine" class="cookieline" style="display:none;"></div>
-
-      <div class="kicker">A SWEET MESSAGE FOR YOU</div>
-
-      <div id="affirmation" class="affirmation">Loading…</div>
-
-      <!-- Optional “collection” line -->
-      <div id="collectionLine" class="collectionline" aria-live="polite"></div>
-
-      <!-- ACTIONS -->
-      <div class="row">
-        <button id="copyBtn" type="button">Copy</button>
-        <button id="shareBtn" type="button">Share</button>
-        <button id="storyBtn" type="button">Make Story Card</button>
+  <main class="page">
+    <section class="card" role="region" aria-label="UniCookies message card">
+      <div class="brand">
+        <img class="logo" src="./assets/logo.png" alt="UniCookies" />
       </div>
 
-      <!-- TIP DIVIDER (divider between buttons and social icons) -->
-      <div class="tip">
-        Tip: Share your message and tag <strong>@eatunicookies</strong>.
+      <!-- Cookie line (shown only when cookie param exists) -->
+      <div id="cookieLine" class="cookie-line" style="display:none;"></div>
+
+      <div class="subtitle">A SWEET MESSAGE FOR YOU</div>
+
+      <!-- ✅ This is the element app.js writes into.
+           Never remove. Default shows LOADING... -->
+      <div id="affirmation" class="affirmation">LOADING...</div>
+
+      <!-- Collection counter -->
+      <div id="collectionLine" class="collection-line"></div>
+
+      <div class="actions">
+        <button id="copyBtn" class="btn" type="button">Copy</button>
+        <button id="shareBtn" class="btn" type="button">Share</button>
+        <button id="storyBtn" class="btn btn-primary" type="button">Make Story Card</button>
       </div>
 
-      <!-- SOCIAL ICONS -->
-      <nav class="iconbar" aria-label="UniCookies social links">
-        <a class="iconbtn" href="https://instagram.com/eatunicookies" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-            <circle cx="12" cy="12" r="4"></circle>
-            <circle cx="17.5" cy="6.5" r="1"></circle>
-          </svg>
+      <hr class="divider" />
+
+      <div class="tip">Tip: Share your message and tag <strong>@eatunicookies</strong>.</div>
+
+      <div class="social">
+        <a class="icon" href="https://www.instagram.com/eatunicookies/" target="_blank" rel="noopener" aria-label="Instagram">
+          <!-- Replace with your icon SVG if you have it -->
+          <span>IG</span>
         </a>
-
-        <a class="iconbtn" href="https://tiktok.com/@eatunicookies" target="_blank" rel="noopener" aria-label="TikTok">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 3v10.5a4.5 4.5 0 1 1-4-4.47"></path>
-            <path d="M14 3c1.2 3.4 3.6 5 7 5"></path>
-          </svg>
+        <a class="icon" href="https://www.tiktok.com/@eatunicookies" target="_blank" rel="noopener" aria-label="TikTok">
+          <span>TT</span>
         </a>
-
-        <a class="iconbtn" href="https://youtube.com/@eatunicookies" target="_blank" rel="noopener" aria-label="YouTube">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 12s0-4-1-5-5-1-9-1-8 0-9 1-1 5-1 5 0 4 1 5 5 1 9 1 8 0 9-1 1-5 1-5z"></path>
-            <path d="M10 15l5-3-5-3v6z"></path>
-          </svg>
+        <a class="icon" href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
+          <span>YT</span>
         </a>
-      </nav>
+      </div>
 
-      <div class="toast" id="toast">Saved!</div>
-
+      <!-- Toast -->
+      <div id="toast" class="toast" style="display:none;"></div>
     </section>
   </main>
-  <script src="./config.js"></script>
-  <script src="./cookie-messages.js"></script>
-  <script src="./app.js"></script>
-
-  <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
-    });
-  }
-</script>
-
 </body>
 </html>
