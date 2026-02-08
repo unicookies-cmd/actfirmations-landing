@@ -3,10 +3,14 @@ const el = (id) => document.getElementById(id);
 const affEl = el("affirmation");
 const cookieLineEl = el("cookieLine");
 const collectionLineEl = el("collectionLine");
-const toastEl = el("toast");
 
-const getParam = (name) => new URL(window.location.href).searchParams.get(name);
-const dayKey = () => new Date().toISOString().split('T')[0];
+function dayKey() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function getParam(name) {
+  return new URL(window.location.href).searchParams.get(name);
+}
 
 function getTodaysMessage(cookieId) {
   const pool = window.UNI_COOKIE_MESSAGES[cookieId] || window.UNI_HOUSE_BLEND;
@@ -15,6 +19,7 @@ function getTodaysMessage(cookieId) {
   const existing = localStorage.getItem(key);
   if (existing) return existing;
 
+  // Pick a random message from the curated human list
   const chosen = pool[Math.floor(Math.random() * pool.length)];
   localStorage.setItem(key, chosen);
   return chosen;
@@ -28,8 +33,7 @@ function markScanned(cookieId) {
     scanned.push(cookieId);
     localStorage.setItem(key, JSON.stringify(scanned));
   }
-  const count = scanned.length;
-  collectionLineEl.textContent = `You scanned ${count} of 7 cookies today.`;
+  collectionLineEl.textContent = `You scanned ${scanned.length} of 7 cookies today.`;
 }
 
 (function init() {
@@ -38,11 +42,13 @@ function markScanned(cookieId) {
 
   if (meta) {
     cookieLineEl.textContent = `${meta.name} • Today’s message`;
+    cookieLineEl.style.display = "block";
     markScanned(cookieId);
   } else {
     cookieLineEl.style.display = "none";
   }
 
-  // The final message is pulled directly from the clean library
-  affEl.textContent = getTodaysMessage(cookieId);
+  // Fallback to House Blend if themed pool fails, so it's NEVER blank
+  const finalMsg = getTodaysMessage(cookieId) || window.UNI_HOUSE_BLEND[0];
+  affEl.textContent = finalMsg;
 })();
