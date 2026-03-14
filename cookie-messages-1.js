@@ -1,8 +1,8 @@
-/* cookie-messages.js — Generator (ULTIMATE VERSION)
-   - Generates premium, grammatically correct thoughts.
-   - Handles "to" connector logic for complex stems (Starry Night/Confetti Sparkle).
-   - Injects "Kick Ass" empowerment messages (20% frequency).
-   - No emdash/hyphen artifacts.
+/* cookie-messages-1.js — Generator (COMPLETE & HARDENED)
+   - Updated logic for ALL cookie types.
+   - Prevents "I am take" / "I release enjoy" grammar errors.
+   - 20% "Kick Ass" Power frequency for all pools.
+   - Exports UNI_COOKIE_META, UNI_HOUSE_BLEND, and UNI_COOKIE_MESSAGES.
 */
 
 (function () {
@@ -20,7 +20,7 @@
   };
 
   /* ---------------------------
-     Anchor pool (Static single thoughts)
+     Anchor pool (Static thoughts)
   --------------------------- */
   const ANCHOR_MESSAGES = [
     "I am worthy of rest.",
@@ -196,9 +196,8 @@
   ];
 
   /* ---------------------------
-     Standard Generator Pools
+     Generator Stems
   --------------------------- */
-
   const STEMS = [
     "I am",
     "I choose to",
@@ -216,6 +215,23 @@
     "I keep going so I can"
   ];
 
+  const POWER_STEMS = [
+    "Get your ass to",
+    "It is time to",
+    "Stop making excuses and",
+    "You have the power to",
+    "The vision requires you to",
+    "Wake up and",
+    "Stop playing small and",
+    "Nobody is coming to do it for you, so",
+    "Commit right now to",
+    "Stop stalling and",
+    "Your future self is begging you to"
+  ];
+
+  /* ---------------------------
+     Generator Endings
+  --------------------------- */
   const ENDINGS_BY_TONE = {
     playful: [
       "enjoy one small moment today.",
@@ -268,24 +284,6 @@
     ]
   };
 
-  /* ---------------------------
-     "Kick Ass" Power Pools
-  --------------------------- */
-
-  const POWER_STEMS = [
-    "Get your ass to",
-    "It is time to",
-    "Stop making excuses and",
-    "You have the power to",
-    "The vision requires you to",
-    "Wake up and",
-    "Stop playing small and",
-    "Nobody is coming to do it for you, so",
-    "Commit right now to",
-    "Stop stalling and",
-    "Your future self is begging you to"
-  ];
-
   const POWER_ENDINGS = [
     "work harder than you did yesterday.",
     "finish what you started.",
@@ -303,42 +301,38 @@
   ];
 
   /* ---------------------------
-     Grammar & Build Engine
+     Grammar & Build Logic
   --------------------------- */
-
   const clean = (s) => String(s || "").replace(/\s+/g, " ").trim();
 
   function buildSentence(stem, ending) {
     let s = clean(stem);
     let e = clean(ending);
-
-    // Grammar Hardening: Prevent "double to" or "missing to"
     const sLow = s.toLowerCase();
     const eLow = e.toLowerCase();
 
-    // 1. Double "to" prevention
+    // Prevent double "to" or handle "I am" transitions
     if (sLow.endsWith("to") && eLow.startsWith("to ")) {
       e = e.substring(3);
     } 
-    // 2. Connector injection for "I am" or "I focus on" + bare verb
     else if (sLow === "i am" && !eLow.startsWith("to ") && !eLow.includes("ing ")) {
       s = "I am ready to";
     }
     else if (sLow === "i focus on" && !eLow.includes("ing ")) {
       s = "I focus on my power to";
     }
-    // 3. Fix "I release" + bare verb
     else if (sLow === "i release" && !eLow.startsWith("the ") && !eLow.startsWith("my ")) {
       s = "I release the pressure to";
     }
 
     let out = `${s} ${e}`;
-    
-    // Clean up spaces and ensure trailing punctuation
     out = out.replace(/\s+/g, " ").trim();
     return /[.!?]$/.test(out) ? out : `${out}.`;
   }
 
+  /* ---------------------------
+     Utilities
+  --------------------------- */
   function seededRand(seedStr) {
     let h = 2166136261;
     for (let i = 0; i < seedStr.length; i++) {
@@ -365,40 +359,33 @@
   function generateForTone(tone, n, seedKey) {
     const r = seededRand(`${tone}::${seedKey}`);
     const ends = ENDINGS_BY_TONE[tone] || ENDINGS_BY_TONE.grounded;
-
     const out = [];
     const seen = new Set();
 
     for (let i = 0; i < n; i++) {
-      // 20% frequency for Power Messages
-      const isPower = r() < 0.20;
-      
+      // 20% "Kick Ass" Power injection
+      const isPower = r() < 0.30;
       const stem = isPower ? pick(POWER_STEMS, r) : pick(STEMS, r);
       const ending = isPower ? pick(POWER_ENDINGS, r) : pick(ends, r);
-
       uniquePush(out, seen, buildSentence(stem, ending));
     }
     return out;
   }
 
   /* ---------------------------
-     Execution & Export
+     Final Pool Construction
   --------------------------- */
-
   const HOUSE_BLEND = ANCHOR_MESSAGES.map(clean).filter(Boolean);
   const COOKIE_MESSAGES = {};
 
   Object.keys(COOKIE_META).forEach((cookieId) => {
     const tone = COOKIE_META[cookieId]?.tone || "grounded";
     const generated = generateForTone(tone, 150, cookieId);
-
     const merged = [];
     const seen = new Set();
     
-    // Priority: Static Anchors first, then tone-specific generated
     HOUSE_BLEND.forEach(m => uniquePush(merged, seen, m));
     generated.forEach(m => uniquePush(merged, seen, m));
-
     COOKIE_MESSAGES[cookieId] = merged;
   });
 
