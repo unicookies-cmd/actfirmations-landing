@@ -1,9 +1,8 @@
-/* cookie-messages.js — Generator (FIXED)
-   - Generates messages
-   - theme + vibe drive WHICH endings are chosen (tone/mood)
-   - ✅ Output logic is ONLY: STEM + ENDING
-   - ✅ theme/vibe NEVER appear in the final text
-   - ✅ No emdash/hyphen concatenation
+/* cookie-messages.js — Generator (ULTIMATE VERSION)
+   - Generates premium, grammatically correct thoughts.
+   - Handles "to" connector logic for complex stems (Starry Night/Confetti Sparkle).
+   - Injects "Kick Ass" empowerment messages (20% frequency).
+   - No emdash/hyphen artifacts.
 */
 
 (function () {
@@ -21,8 +20,7 @@
   };
 
   /* ---------------------------
-     Anchor pool (your 340-style messages + the ones you pasted)
-     Keep these as complete, single thoughts.
+     Anchor pool (Static single thoughts)
   --------------------------- */
   const ANCHOR_MESSAGES = [
     "I am worthy of rest.",
@@ -75,7 +73,6 @@
     "My focus creates my reality.",
     "I treat myself like someone I love.",
     "I choose to see challenges as opportunities.",
-
     "You matter more than you realize — and today, you’re appreciated.",
     "Someone thought of you when this cookie was made.",
     "You are seen, even in the moments you feel overlooked.",
@@ -174,7 +171,6 @@
     "You are seen, respected, and appreciated.",
     "You are an important part of this moment.",
     "This cookie exists because you matter.",
-
     "I am allowed to start messy.",
     "My pace is still progress.",
     "I don’t need permission to evolve.",
@@ -194,54 +190,32 @@
     "I choose direction over distraction.",
     "I am safe to be visible.",
     "I don’t chase—I attract.",
-    "I’m proud of my effort today."
+    "I’m proud of my effort today.",
+    "The blessings don't complete themselves; get to work.",
+    "Stop waiting for the 'right' time; it's now."
   ];
 
   /* ---------------------------
-     Generator: stems + endings
-     theme/vibe drive selection only
+     Standard Generator Pools
   --------------------------- */
 
   const STEMS = [
     "I am",
-    "I choose",
+    "I choose to",
     "I allow myself to",
     "I give myself permission to",
-    "I trust",
-    "I release",
-    "I honor",
-    "I remember",
+    "I trust my power to",
+    "I release the need to",
+    "I honor my path to",
+    "I remember to",
     "I can",
-    "I deserve",
+    "I deserve to",
     "I return to",
-    "I protect",
+    "I protect my space to",
     "I focus on",
-    "I keep going"
+    "I keep going so I can"
   ];
 
-  // internal tone targets (not printed)
-  const THEMES_BY_TONE = {
-    playful:   ["joy", "spark", "celebration"],
-    grounded:  ["calm", "steadiness", "clarity"],
-    tender:    ["care", "softness", "belonging"],
-    brave:     ["courage", "confidence", "action"],
-    visionary: ["direction", "future", "imagination"],
-    light:     ["ease", "relief", "fresh start"],
-    unity:     ["together", "support", "connection"]
-  };
-
-  const VIBES_BY_TONE = {
-    playful:   ["bright", "uplifting", "fun"],
-    grounded:  ["steady", "centered", "clear"],
-    tender:    ["warm", "safe", "kind"],
-    brave:     ["capable", "strong", "ready"],
-    visionary: ["open", "curious", "focused"],
-    light:     ["gentle", "easy", "simple"],
-    unity:     ["connected", "supported", "seen"]
-  };
-
-  // Endings are *complete clauses* that finish the thought after the stem.
-  // No leading dashes. No vibe words here.
   const ENDINGS_BY_TONE = {
     playful: [
       "enjoy one small moment today.",
@@ -295,31 +269,74 @@
   };
 
   /* ---------------------------
-     Utilities / safety
+     "Kick Ass" Power Pools
+  --------------------------- */
+
+  const POWER_STEMS = [
+    "Get your ass to",
+    "It is time to",
+    "Stop making excuses and",
+    "You have the power to",
+    "The vision requires you to",
+    "Wake up and",
+    "Stop playing small and",
+    "Nobody is coming to do it for you, so",
+    "Commit right now to",
+    "Stop stalling and",
+    "Your future self is begging you to"
+  ];
+
+  const POWER_ENDINGS = [
+    "work harder than you did yesterday.",
+    "finish what you started.",
+    "stop talking and start doing.",
+    "execute the plan without hesitation.",
+    "stop settling for 'good enough'.",
+    "realize the dream won't work unless you do.",
+    "demand more from yourself.",
+    "turn your 'shoulds' into 'musts'.",
+    "be your own biggest advocate.",
+    "stop waiting for permission to lead.",
+    "own the room before you even enter.",
+    "outwork your own doubts.",
+    "be undeniable in everything you touch."
+  ];
+
+  /* ---------------------------
+     Grammar & Build Engine
   --------------------------- */
 
   const clean = (s) => String(s || "").replace(/\s+/g, " ").trim();
 
-  // In case any old pattern sneaks in, remove "—word" immediately after stem phrases
-  function removeStemFusionArtifacts(s) {
-    // Examples to kill: "I am—", "I choose—", "I do choose—"
-    return s
-      .replace(/\b(I am|I choose|I do|I love|I see|I speak|I feel)\s*[—–-]\s*\w+/gi, "$1")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  function ensurePunctuation(s) {
-    const t = clean(s);
-    return /[.!?]$/.test(t) ? t : `${t}.`;
-  }
-
   function buildSentence(stem, ending) {
-    // Output strictly: stem + ending
-    let out = `${clean(stem)} ${clean(ending)}`;
-    out = removeStemFusionArtifacts(out);
-    out = ensurePunctuation(out);
-    return out;
+    let s = clean(stem);
+    let e = clean(ending);
+
+    // Grammar Hardening: Prevent "double to" or "missing to"
+    const sLow = s.toLowerCase();
+    const eLow = e.toLowerCase();
+
+    // 1. Double "to" prevention
+    if (sLow.endsWith("to") && eLow.startsWith("to ")) {
+      e = e.substring(3);
+    } 
+    // 2. Connector injection for "I am" or "I focus on" + bare verb
+    else if (sLow === "i am" && !eLow.startsWith("to ") && !eLow.includes("ing ")) {
+      s = "I am ready to";
+    }
+    else if (sLow === "i focus on" && !eLow.includes("ing ")) {
+      s = "I focus on my power to";
+    }
+    // 3. Fix "I release" + bare verb
+    else if (sLow === "i release" && !eLow.startsWith("the ") && !eLow.startsWith("my ")) {
+      s = "I release the pressure to";
+    }
+
+    let out = `${s} ${e}`;
+    
+    // Clean up spaces and ensure trailing punctuation
+    out = out.replace(/\s+/g, " ").trim();
+    return /[.!?]$/.test(out) ? out : `${out}.`;
   }
 
   function seededRand(seedStr) {
@@ -335,35 +352,29 @@
   }
 
   function pick(arr, r) {
-    if (!Array.isArray(arr) || arr.length === 0) return "";
     return arr[Math.floor(r() * arr.length)];
   }
 
   function uniquePush(arr, set, value) {
     const v = clean(value);
-    if (!v) return;
-    if (set.has(v)) return;
+    if (!v || set.has(v)) return;
     set.add(v);
     arr.push(v);
   }
 
   function generateForTone(tone, n, seedKey) {
     const r = seededRand(`${tone}::${seedKey}`);
-    const themes = THEMES_BY_TONE[tone] || [];
-    const vibes  = VIBES_BY_TONE[tone]  || [];
-    const ends   = ENDINGS_BY_TONE[tone] || ENDINGS_BY_TONE.grounded;
+    const ends = ENDINGS_BY_TONE[tone] || ENDINGS_BY_TONE.grounded;
 
     const out = [];
     const seen = new Set();
 
     for (let i = 0; i < n; i++) {
-      // theme/vibe used ONLY as internal selectors (never printed)
-      const _theme = pick(themes, r);
-      const _vibe  = pick(vibes, r);
-      void _theme; void _vibe;
-
-      const stem = pick(STEMS, r);
-      const ending = pick(ends, r);
+      // 20% frequency for Power Messages
+      const isPower = r() < 0.20;
+      
+      const stem = isPower ? pick(POWER_STEMS, r) : pick(STEMS, r);
+      const ending = isPower ? pick(POWER_ENDINGS, r) : pick(ends, r);
 
       uniquePush(out, seen, buildSentence(stem, ending));
     }
@@ -371,26 +382,26 @@
   }
 
   /* ---------------------------
-     Build final pools
+     Execution & Export
   --------------------------- */
 
   const HOUSE_BLEND = ANCHOR_MESSAGES.map(clean).filter(Boolean);
-
   const COOKIE_MESSAGES = {};
+
   Object.keys(COOKIE_META).forEach((cookieId) => {
     const tone = COOKIE_META[cookieId]?.tone || "grounded";
-    const generated = generateForTone(tone, 160, cookieId);
+    const generated = generateForTone(tone, 150, cookieId);
 
-    // Merge: anchors first, then generated
     const merged = [];
     const seen = new Set();
+    
+    // Priority: Static Anchors first, then tone-specific generated
     HOUSE_BLEND.forEach(m => uniquePush(merged, seen, m));
     generated.forEach(m => uniquePush(merged, seen, m));
 
     COOKIE_MESSAGES[cookieId] = merged;
   });
 
-  // Export
   window.UNI_COOKIE_META = COOKIE_META;
   window.UNI_HOUSE_BLEND = HOUSE_BLEND;
   window.UNI_COOKIE_MESSAGES = COOKIE_MESSAGES;
