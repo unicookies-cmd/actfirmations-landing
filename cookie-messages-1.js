@@ -1,7 +1,7 @@
-/* cookie-messages-1.js — Simplified Random Anchor System
-   - Pulls from a single master list of anchor messages.
+/* cookie-messages-1.js — Final Extended Random Anchor System
+   - Pulls from a single master list of 180+ anchor messages.
    - Identifies cookie types for UI/Collection tracking only.
-   - Removes generative logic and "Kick Ass" frequency.
+   - All QR codes (specific or general) provide a random message from the full list.
    - Maintains the one-message-per-device-per-day rule via app.js.
 */
 
@@ -23,6 +23,46 @@
      Master Message List (Anchors)
   --------------------------- */
   const MASTER_MESSAGES = [
+    "I am not a finished product; I am a constant unfolding.",
+    "Peace is not the absence of noise, but the ability to be calm within it.",
+    "The obstacle is not a roadblock; it is the path.",
+    "My value is not a fluctuating stock price based on today's productivity.",
+    "I do not need to earn my rest. It is the fuel, not the reward.",
+    "The timing of my life is not 'late' or 'early' - it is mine.",
+    "I am the sky, not the weather. The storms pass; I remain.",
+    "My sensitivity is a form of intelligence, not a weakness.",
+    "Clarity often comes from action, not just from thinking.",
+    "To say 'no' to others is often to say 'yes' to myself.",
+    "I can do hard things without being hard on myself.",
+    "I embrace the mess as evidence of the effort.",
+    "I am willing to be a beginner again.",
+    "I trust the version of me that is emerging.",
+    "My energy introduces me before I even speak.",
+    "I release the pressure to have it all figured out today.",
+    "I am planting seeds today that I will enjoy harvesting later.",
+    "I validate my own reality; I do not need a witness to be real.",
+    "I am safe in the uncertainty.",
+    "I hold my standards high and my judgment low.",
+    "This moment, right now, is the only place life exists.",
+    "I allow myself to take up space in the room and in the world.",
+    "My capacity to feel deeply is a superpower.",
+    "I am creating a life that feels good on the inside, not just one that looks good on the outside.",
+    "I honor the pause between the trigger and my response.",
+    "I forgive myself for what I didn't know when I didn't know it.",
+    "I am the author of my own permission slip.",
+    "My boundaries are the distance at which I can love you and me simultaneously.",
+    "I choose to be my own best friend today.",
+    "I am enough. Full stop.",
+    "Discipline is choosing what I want most over what I want now.",
+    "I focus on the step, not the whole staircase.",
+    "My potential is not limited by my past performance.",
+    "I am building something that matters, and that takes time.",
+    "I do not chase; I attract what belongs to me.",
+    "I am becoming the person I needed when I was younger.",
+    "Small hinges swing big doors.",
+    "I trade anxiety for curiosity.",
+    "I am exactly where I need to be to get to where I want to go.",
+    "I trust the process of my own blooming.",
     "Progress, not perfection, is the goal.",
     "My feelings are valid, even if others don't understand them.",
     "I release the need to control the outcome.",
